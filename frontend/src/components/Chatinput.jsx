@@ -1,6 +1,21 @@
-import React from "react";
+import React,{useState} from "react";
 
-const Chatinput = () => {
+const Chatinput = ({setMessages}) => {
+  const [input,setInput]=useState('')
+
+  const handleSend=(e)=>{
+    e.preventDefault()
+    setMessages((prevMessages) => [
+  ...prevMessages,
+  {
+    role: "user",
+    content: input,
+  },
+]);
+    // console.log(input)
+    setInput("")
+  }
+
   return (
     <div className="ask-wrap position-fixed bottom-0 start-0 w-100 px-3 px-md-4 pb-3">
       <span className="ask-tab">ASK</span>
@@ -13,6 +28,10 @@ const Chatinput = () => {
           className="form-control"
           placeholder="Ask something about your knowledge base..."
           rows="2"
+          value={input}
+          onChange={(e)=>{
+            setInput(e.target.value)
+          }}
         />
 
         <div className="ask-footer">
@@ -24,7 +43,10 @@ const Chatinput = () => {
             Ask your question
           </span>
 
-          <button className="send-btn">
+          <button className="send-btn"
+          onClick={handleSend}
+          disabled={!input.trim()}
+          >
             Send
           </button>
         </div>

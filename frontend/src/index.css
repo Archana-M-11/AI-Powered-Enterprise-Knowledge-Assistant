@@ -59,6 +59,7 @@ body {
 }
 main {
   padding-top: 80px;
+  padding-bottom: 180px;
 }
 .brand { display: flex; align-items: center; gap: 10px; }
 .brand-mark {
@@ -178,7 +179,7 @@ main {
 .chip:hover { border-color: var(--border-strong); color: var(--text); }
 
 /* Thread */
-.thread { padding-bottom: 40px; flex: 1; }
+.thread { padding-bottom: 40px; flex: 1; overflow-y: auto; }
 .msg { margin-bottom: 22px; }
 .msg-role {
   font-family: var(--font-mono);

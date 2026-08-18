@@ -1,21 +1,24 @@
 import React from "react";
 
-const Chatwindow = () => {
+const Chatwindow = ({messages}) => {
+
   return (
     <section className="thread pb-5 mb-5">
-      <div className="msg user">
-        <div className="msg-role">YOU</div>
+      {messages.map((message, index) => (
+        message.role === 'user' ? (
+    <div key={index} className="msg user">
+      <div className="msg-role">YOU</div>
 
-        <div className="bubble">
-          What is leave policy?
-        </div>
+      <div className="bubble">
+        {message.content}
       </div>
-
-      <div className="msg assistant">
+    </div>
+        ):(
+          <div key={index} className="msg assistant">
         <div className="msg-role">ASSISTANT</div>
 
         <div className="answer">
-          Employees are entitled to 20 days of annual leave.
+         {message.content}
         </div>
 
         <div className="sources">
@@ -32,6 +35,9 @@ const Chatwindow = () => {
           </div>
         </div>
       </div>
+        )
+  ))}
+      
     </section>
   );
 };
