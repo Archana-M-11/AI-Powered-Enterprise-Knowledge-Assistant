@@ -1,21 +1,34 @@
 import React,{useState} from "react";
+import axios from 'axios'
 
 const Chatinput = ({setMessages}) => {
   const [input,setInput]=useState('')
 
-  const handleSend=(e)=>{
+  const handleSend= async (e)=>{
     e.preventDefault()
     setMessages((prevMessages) => [
   ...prevMessages,
-  {
-    role: "user",
-    content: input,
-  },
-]);
+    {
+      role: "user",
+      content: input,
+    },
+  ]);
     // console.log(input)
     setInput("")
+     const response = await axios.post("http://127.0.0.1:8000/chat",
+     {
+    question: input
+  } )
+  console.log(response.data);
+  setMessages((prevMessages) => [
+  ...prevMessages,
+  {
+    role: "assistant",
+    content: response.data.answer,
+  },
+]);
   }
-
+ 
   return (
     <div className="ask-wrap position-fixed bottom-0 start-0 w-100 px-3 px-md-4 pb-3">
       <span className="ask-tab">ASK</span>
