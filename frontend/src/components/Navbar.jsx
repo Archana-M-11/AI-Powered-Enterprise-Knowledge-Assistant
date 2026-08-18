@@ -2,7 +2,8 @@ import React from 'react'
 
 const Navbar = () => {
   return (
-        <nav className='topbar'>
+    
+        <nav className="topbar position-fixed top-0 start-0 w-100">
             <div className="brand">
                 <div className="brand-mark">AI</div>
 

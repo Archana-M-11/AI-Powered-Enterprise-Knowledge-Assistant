@@ -1,14 +1,14 @@
-import React from 'react'
+import React from "react";
 
 const Chatinput = () => {
   return (
-   <div className="ask-wrap position-fixed bottom-0 start-0 w-100">
+    <div className="ask-wrap position-fixed bottom-0 start-0 w-100 px-3 px-md-4 pb-3">
       <span className="ask-tab">ASK</span>
 
       <div className="stack s1"></div>
       <div className="stack s2"></div>
 
-      <div className="ask-card">
+      <div className="ask-card mx-auto">
         <textarea
           className="form-control"
           placeholder="Ask something about your knowledge base..."
@@ -30,7 +30,7 @@ const Chatinput = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Chatinput
+export default Chatinput;

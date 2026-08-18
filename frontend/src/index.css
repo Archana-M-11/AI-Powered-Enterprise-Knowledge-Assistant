@@ -42,11 +42,23 @@ body {
 
 /* Top bar */
 .topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 22px 0;
+
+  padding: 22px 24px;
   border-bottom: 1px solid var(--border);
+
+  background: var(--bg);
+  z-index: 1030;
+}
+main {
+  padding-top: 80px;
 }
 .brand { display: flex; align-items: center; gap: 10px; }
 .brand-mark {

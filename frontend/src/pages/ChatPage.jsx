@@ -7,8 +7,10 @@ const ChatPage = () => {
   return (
    <>
     <Navbar/>
+    <main>
     <Chatwindow/>
     <Chatinput/>
+    </main>
    </>
   )
 }
