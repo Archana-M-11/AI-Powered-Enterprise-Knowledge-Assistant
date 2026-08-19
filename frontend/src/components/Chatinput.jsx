@@ -1,68 +1,92 @@
-import React,{useState} from "react";
-import axios from 'axios'
+import React, { useActionState, useOptimistic } from "react";
+import { useFormStatus } from "react-dom";
+import { sendMessage } from "../services/api";
 
-const Chatinput = ({setMessages}) => {
-  const [input,setInput]=useState('')
+const SubmitButton = () => {
+  const { pending } = useFormStatus();
 
-  const handleSend= async (e)=>{
-    e.preventDefault()
-    setMessages((prevMessages) => [
-  ...prevMessages,
-    {
-      role: "user",
-      content: input,
-    },
-  ]);
-    // console.log(input)
-    setInput("")
-     const response = await axios.post("http://127.0.0.1:8000/chat",
-     {
-    question: input
-  } )
-  console.log(response.data);
-  setMessages((prevMessages) => [
-  ...prevMessages,
-  {
-    role: "assistant",
-    content: response.data.answer,
-  },
-]);
-  }
- 
   return (
-    <div className="ask-wrap position-fixed bottom-0 start-0 w-100 px-3 px-md-4 pb-3">
-      <span className="ask-tab">ASK</span>
+    <button
+      className="send-btn"
+      type="submit"
+      disabled={pending}
+    >
+      {pending ? "thinking..." : "Ask"}
+    </button>
+  );
+};
 
-      <div className="stack s1"></div>
-      <div className="stack s2"></div>
+const Chatinput = ({ messages, setMessages }) => {
 
-      <div className="ask-card mx-auto">
-        <textarea
-          className="form-control"
-          placeholder="Ask something about your knowledge base..."
-          rows="2"
-          value={input}
-          onChange={(e)=>{
-            setInput(e.target.value)
-          }}
-        />
+  const [optimisticMessages, addOptimisticMessage] =
+    useOptimistic(messages);
 
-        <div className="ask-footer">
-          <span className="ask-hint d-none d-sm-inline">
-            Ask anything about your documents
-          </span>
+  const [state, formAction] = useActionState(
+    async (previousState, formData) => {
 
-          <span className="ask-hint d-inline d-sm-none">
-            Ask your question
-          </span>
+      const question = formData.get("question")?.trim();
 
-          <button className="send-btn"
-          onClick={handleSend}
-          disabled={!input.trim()}
-          >
-            Send
-          </button>
-        </div>
+      if (!question) {
+        return {
+          error: "Please enter a question.",
+        };
+      }
+
+      // 1. Immediately show user's message
+      const userMessage = {
+        role: "user",
+        content: question,
+      };
+
+      addOptimisticMessage(userMessage);
+
+      try {
+        const response = await sendMessage(question);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          userMessage,
+          {
+            role: "assistant",
+            content: response.data.answer,
+          },
+        ]);
+
+        return {
+          error: null,
+        };
+
+      } catch (error) {
+
+        return {
+          error: "Something went wrong. Please try again.",
+        };
+      }
+    },
+    {
+      error: null,
+    }
+  );
+
+  return (
+    <div className="ask-wrap">
+      <div className="ask-card">
+
+        <form action={formAction}>
+
+          <input
+            className="ask-input"
+            name="question"
+            placeholder="Ask me anything"
+          />
+
+          <SubmitButton />
+
+        </form>
+
+        {state.error && (
+          <p>{state.error}</p>
+        )}
+
       </div>
     </div>
   );
