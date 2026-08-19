@@ -16,4 +16,13 @@
 
 # print("Vector store created successfully!")
 
-#----------------------------------------
+#---------------retriever---------------------
+# from app.services.retriever import retrieve_documents
+
+# query = "What is the leave policy?"
+
+# documents = retrieve_documents(query)
+
+# for i, document in enumerate(documents, 1):
+#     print(f"\n--- Document {i} ---")
+#     print(document.page_content)
