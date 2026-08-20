@@ -1,6 +1,7 @@
-import React, { useActionState, useOptimistic } from "react";
+import React, { useActionState, useOptimistic ,useRef } from "react";
 import { useFormStatus } from "react-dom";
 import { sendMessage } from "../services/api";
+
 
 const SubmitButton = () => {
   const { pending } = useFormStatus();
@@ -11,18 +12,16 @@ const SubmitButton = () => {
       type="submit"
       disabled={pending}
     >
-      {pending ? "thinking..." : "Ask"}
+    Ask
     </button>
   );
 };
 
-const Chatinput = ({ messages, setMessages }) => {
+const Chatinput = ({ messages, setMessages , addOptimisticMessage, }) => {
 
-  const [optimisticMessages, addOptimisticMessage] =
-    useOptimistic(messages);
+  const formRef = useRef(null);
 
-  const [state, formAction] = useActionState(
-    async (previousState, formData) => {
+  const [state, formAction] = useActionState(async (previousState, formData) => {
 
       const question = formData.get("question")?.trim();
 
@@ -32,13 +31,20 @@ const Chatinput = ({ messages, setMessages }) => {
         };
       }
 
-      // 1. Immediately show user's message
+      formRef.current?.reset();
+
+      // Immediately show user's message
       const userMessage = {
         role: "user",
         content: question,
       };
+      const thinkMessage={
+         role: "assistant",
+         content: "Thinking...",
+      }
 
       addOptimisticMessage(userMessage);
+      addOptimisticMessage(thinkMessage);
 
       try {
         const response = await sendMessage(question);
@@ -71,12 +77,13 @@ const Chatinput = ({ messages, setMessages }) => {
     <div className="ask-wrap">
       <div className="ask-card">
 
-        <form action={formAction}>
+        <form ref={formRef} action={formAction}>
 
           <input
             className="ask-input"
             name="question"
             placeholder="Ask me anything"
+            autoComplete="off"
           />
 
           <SubmitButton />
