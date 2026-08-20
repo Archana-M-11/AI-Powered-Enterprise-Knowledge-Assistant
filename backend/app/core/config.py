@@ -7,7 +7,7 @@ class Settings(BaseSettings):
 
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     llm_model: str = "gemini-3.5-flash"
-
+    
     hf_token: str | None = None
 
     langsmith_api_key: str | None = None

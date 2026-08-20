@@ -74,17 +74,29 @@ def build_vector_store():
     new_or_changed_files = []
 
     for file_path, file_hash in current_files.items():
-
         if metadata.get(file_path) != file_hash:
             new_or_changed_files.append(file_path)
 
-    # Process ONLY changed/new files
+    # Find deleted files
+    deleted_files = set(metadata.keys()) - set(current_files.keys())
+
+    # Delete chunks of deleted files
+    for file_path in deleted_files:
+        vector_store.delete(
+            where={"source": file_path}
+        )
+
+    # Update new/changed files
     for file_path in new_or_changed_files:
+
+        # Remove old chunks if this file was changed
+        vector_store.delete(
+            where={"source": file_path}
+        )
 
         documents = load_documents([Path(file_path)])
         chunks = split_documents(documents)
 
-        # add new chunks
         vector_store.add_documents(chunks)
 
     save_index_metadata(current_files)

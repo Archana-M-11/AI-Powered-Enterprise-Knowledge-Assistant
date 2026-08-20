@@ -10,11 +10,11 @@
 
 
 #--------- vectore store----------------
-# from app.services.rag_service import build_vector_store
+from app.services.rag_service import build_vector_store
 
-# vector_store = build_vector_store()
+vector_store = build_vector_store()
 
-# print("Vector store created successfully!")
+print("Vector store created successfully!")
 
 #---------------retriever---------------------
 # from app.services.retriever import retrieve_documents
@@ -28,10 +28,10 @@
 #     print(document.page_content)
 
 #--------------llm----------
-from app.services.rag_service import ask_question
+# from app.services.rag_service import ask_question
 
-question = "What is the leave policy?"
+# question = "What is the leave policy?"
 
-answer = ask_question(question)
+# answer = ask_question(question)
 
-print(answer)
+# print(answer)
