@@ -15,7 +15,7 @@ const Chatwindow = ({ messages }) => {
         )
       ))}
     </section>
-  );
+  );  
 };
 
 export default Chatwindow;

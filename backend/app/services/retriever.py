@@ -7,3 +7,6 @@ def retrieve_documents(query, k=4):
     vector_store = load_vectore_store(embeddings)
 
     return vector_store.similarity_search(query, k=k)
+    
+
+

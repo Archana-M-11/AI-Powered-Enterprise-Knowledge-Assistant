@@ -1,12 +1,11 @@
-from pathlib import Path
 from langchain_community.document_loaders import PyPDFLoader
 
-KNOWLEDGE_BASE_DIR=Path('knowledge_base')
 
-def load_documents():
-    documents=[]
-    for pdf_file in KNOWLEDGE_BASE_DIR.glob('*.pdf'):
-        loader=PyPDFLoader(str(pdf_file))
+def load_documents(file_paths):
+    documents = []
+
+    for file_path in file_paths:
+        loader = PyPDFLoader(str(file_path))
         documents.extend(loader.load())
 
     return documents

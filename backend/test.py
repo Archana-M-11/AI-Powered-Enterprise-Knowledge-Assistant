@@ -26,3 +26,12 @@
 # for i, document in enumerate(documents, 1):
 #     print(f"\n--- Document {i} ---")
 #     print(document.page_content)
+
+#--------------llm----------
+from app.services.rag_service import ask_question
+
+question = "What is the leave policy?"
+
+answer = ask_question(question)
+
+print(answer)
