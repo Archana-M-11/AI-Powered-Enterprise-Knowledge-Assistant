@@ -21,7 +21,7 @@ KNOWLEDGE_BASE_DIR = Path("knowledge_base")
 INDEX_METADATA_FILE = Path("index_metadata.json")
 
 def get_file_hash(file_path:Path):
-    hasher=hashlib.sha256()
+    hasher=hashlib.sha256() 
     with open(file_path, "rb") as file:
         while chunk := file.read(8192):
             hasher.update(chunk)
@@ -99,36 +99,36 @@ def build_vector_store():
 
         vector_store.add_documents(chunks)
 
-    save_index_metadata(current_files)
+    save_index_metadata(current_files)  
 
     return vector_store
 
 #-----llm generation---
 
-def ask_question(question:str):
-    documents=retrieve_documents(question)
+# def ask_question(question:str):
+#     documents=retrieve_documents(question)
 
-    context='\n\n'.join( document.page_content
-        for document in documents)
-    prompt= f""" You are an enterprise knowledge assistant.
+#     context='\n\n'.join( document.page_content
+#         for document in documents)
+#     prompt= f""" You are an enterprise knowledge assistant.
 
-            Answer the user's question using only the provided context.
+#             Answer the user's question using only the provided context.
 
-            If the answer is not available in the context, say:
-            "I couldn't find that information in the knowledge base."
-             Context:{context}
-            Question:{question}
-        """
+#             If the answer is not available in the context, say:
+#             "I couldn't find that information in the knowledge base."
+#              Context:{context}
+#             Question:{question}
+#         """
 
-    response = llm.invoke(prompt)
+#     response = llm.invoke(prompt)
 
-    if isinstance(response.content, str):
-        return response.content
+#     if isinstance(response.content, str):
+#         return response.content
 
-    return "".join(
-        block["text"]
-        for block in response.content
-        if block.get("type") == "text"
-    )
+#     return "".join(
+#         block["text"]
+#         for block in response.content
+#         if block.get("type") == "text"
+#     )
 
 

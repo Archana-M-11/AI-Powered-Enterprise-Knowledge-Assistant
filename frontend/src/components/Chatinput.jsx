@@ -46,6 +46,7 @@ const Chatinput = ({ messages, setMessages , addOptimisticMessage, }) => {
       addOptimisticMessage(userMessage);
       addOptimisticMessage(thinkMessage);
 
+      // api cal
       try {
         const response = await sendMessage(question);
         setMessages((prevMessages) => [
@@ -54,6 +55,7 @@ const Chatinput = ({ messages, setMessages , addOptimisticMessage, }) => {
           {
             role: "assistant",
             content: response.data.answer,
+            source: response.data.source,
           },
         ]);
 

@@ -10,7 +10,15 @@ const Chatwindow = ({ messages }) => {
           </div>
         ) : (
           <div key={index} className="msg assistant">
-            <div className="answer">{message.content}</div>
+            <div className="answer">{message.content}
+
+               {message.source?.length > 0 && (
+                <div className="source">
+                  Source: {message.source.join(", ")}
+                </div>
+              )}
+            </div>
+            
           </div>
         )
       ))}
