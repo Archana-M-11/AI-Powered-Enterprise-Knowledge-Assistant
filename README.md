@@ -10,6 +10,8 @@ grounded answers using an LLM.
 The application consists of a FastAPI backend and React frontend, with
 LangGraph used to orchestrate the query-processing workflow.
 
+![Architecture Diagram](docs/architecture.png)
+
 ## Key Features
 
 - React-based chat interface
@@ -28,14 +30,33 @@ LangGraph used to orchestrate the query-processing workflow.
 - Fallback response for irrelevant queries
 - Out-of-scope query handling
 
+## Frontend
+
+React (Vite) chat interface that sends user questions to the backend
+and renders the returned answer, sources, or a "not found" fallback.
+
+```text
+frontend/
+└── src/
+    ├── components/    # Chatinput, Chatwindow, Navbar
+    ├── pages/         # ChatPage
+    └── services/      # api.js — centralized Axios instance
+```
+
+- All API calls go through `services/api.js` rather than being called
+  directly from components, so the backend base URL and endpoint paths
+  live in one place.
+- Styling uses CSS custom properties defined in `index.css` (color
+  tokens, fonts) so the theme can be adjusted without touching
+  component files.
+
+
+
 ## Architecture
 
 ### Core Pipeline
 
-📄 **Document Loading** → 🧩 **Chunking** → 🔢 **Embedding** → 🗄️ **Vector Store**
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⬇
-🔍 **Similarity Search** → 🧠 **LLM Generation (LangGraph)** → 💬 **Answer + Sources**
-
+📄 **Document Loading** → 🧩 **Chunking** → 🔢 **Embedding** → 🗄️ **Vector Store** → 🔍 **Similarity Search** → 🧠 **LLM Generation (LangGraph)** → 💬 **Answer + Sources**
 
 ### LangGraph Workflow
 
@@ -65,51 +86,6 @@ Conditional Routing
             END
 
 ```
-
-### Full Architecture
-
-![Architecture Diagram](docs/architecture.png)
-
-## Backend
-
-FastAPI service exposing the `/chat` endpoint that the frontend calls.
-Owns document ingestion, chunking, embedding, vector storage, retrieval,
-and LangGraph-orchestrated answer generation.
-
-```text
-backend/
-└── app/
-    ├── core/          # config, settings, shared utilities
-    ├── graph/          # LangGraph workflow definition 
-    ├── loaders/        # document loading  
-    ├── services/       # chunking, retrieval, and application logic
-    └── vectorstore/    # embedding + vector DB integration 
-```
-
-The backend currently provides a working `/chat` endpoint with CORS enabled 
-for the frontend. The RAG pipeline and LangGraph workflow are integrated into
-the backend.
-
-## Frontend
-
-React (Vite) chat interface that sends user questions to the backend
-and renders the returned answer, sources, or a "not found" fallback.
-
-```text
-frontend/
-└── src/
-    ├── components/    # Chatinput, Chatwindow, Navbar
-    ├── pages/         # ChatPage
-    └── services/      # api.js — centralized Axios instance
-```
-
-- All API calls go through `services/api.js` rather than being called
-  directly from components, so the backend base URL and endpoint paths
-  live in one place.
-- Styling uses CSS custom properties defined in `index.css` (color
-  tokens, fonts) so the theme can be adjusted without touching
-  component files.
-
 
 ## Installation
 
