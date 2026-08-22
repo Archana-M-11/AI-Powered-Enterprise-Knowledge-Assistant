@@ -64,9 +64,11 @@ Conditional Routing
              ↓
             END
 
+```
+
 ### Full Architecture
 
-![Architecture Diagram](docs/architecture.svg)
+![Architecture Diagram](docs/architecture.png)
 
 ## Backend
 
