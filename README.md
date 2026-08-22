@@ -49,12 +49,27 @@ frontend/
 - Styling uses CSS custom properties defined in `index.css` (color
   tokens, fonts) so the theme can be adjusted without touching
   component files.
+## Backend
 
+FastAPI service exposing the `/chat` endpoint that the frontend calls.
+Owns document ingestion, chunking, embedding, vector storage, retrieval,
+and LangGraph-orchestrated answer generation.
 
+```text
+backend/
+└── app/
+    ├── core/          # config, settings, shared utilities
+    ├── graph/          # LangGraph workflow definition
+    ├── loaders/        # document loading  
+    ├── services/       # chunking, retrieval, and application logic
+    └── vectorstore/    # embedding + vector DB integration
 
-## Architecture
+```
 
-### Core Pipeline
+The backend currently provides a working `/chat` endpoint with CORS enabled for 
+the frontend. The RAG pipeline and LangGraph workflow are integrated into the backend
+
+### RAG Core Pipeline
 
 📄 **Document Loading** → 🧩 **Chunking** → 🔢 **Embedding** → 🗄️ **Vector Store** → 🔍 **Similarity Search** → 🧠 **LLM Generation (LangGraph)** → 💬 **Answer + Sources**
 
