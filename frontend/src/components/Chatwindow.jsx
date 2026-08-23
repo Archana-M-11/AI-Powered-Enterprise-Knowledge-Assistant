@@ -1,4 +1,5 @@
 import React from "react";
+import ReactMarkdown from "react-markdown";
 
 const Chatwindow = ({ messages }) => {
   return (
@@ -10,10 +11,10 @@ const Chatwindow = ({ messages }) => {
           </div>
         ) : (
           <div key={index} className="msg assistant">
-            <div className="answer">{message.content}
-
+            <div className="answer">
+            <ReactMarkdown>{message.content}</ReactMarkdown>
                {message.source?.length > 0 && (
-                <div className="source">
+                <div className="sources">
                   Source: {message.source.join(", ")}
                 </div>
               )}

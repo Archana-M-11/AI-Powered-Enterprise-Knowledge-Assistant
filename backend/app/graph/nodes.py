@@ -15,12 +15,12 @@ structured_llm = llm.with_structured_output(AnswerResponse)
 
 def classify_querry(state:GraphState):
     user_query=state['user_query']
-    prompt= f'''
+    prompt= f"""
      Classify the user's input into exactly one of these categories:
 
         greeting:
-        Only simple greetings, thanks, or goodbye.
-        Examples: "Hi", "Hello".
+       Greeting should ONLY include simple greetings such as:
+        "hi", "hello", "hey",
 
         thanks:
         Only expressions of gratitude such as "Thank you", "Thanks","Thanks a lot".
@@ -41,7 +41,7 @@ def classify_querry(state:GraphState):
         thanks
         knowledge
         out_of_scope
-'''
+"""
     response=llm.invoke(prompt)
     # print("CONTENT:", response.content)
     # print("TYPE:", type(response.content))
@@ -144,16 +144,25 @@ def generate_response(state:GraphState):
         document.page_content
         for document in documents
     )
-    prompt=f""""
-   You are an enterprise knowledge assistant.
-    Answer the question using only the provided context.
-    Give a concise, natural, conversational answer.
-    Include only information relevant to the question.
-    Do not copy or list the document sections unnecessarily.
-    Do not invent information.
-    context={context}
-    question:{question}
-    """
+    prompt = f"""
+You are an enterprise knowledge assistant.
+
+Answer the user's question using ONLY the provided context.
+
+Format the answer clearly using Markdown:
+- Use short paragraphs.
+- Use numbered lists when explaining multiple points.
+- Use bullet points when appropriate.
+- Use headings for major sections.
+- Keep related information grouped together.
+- Do not return everything as one long paragraph.
+
+Context:
+{context}
+
+Question:
+{question}
+"""
     response = structured_llm.invoke(prompt)
 
     sources = list({
