@@ -201,3 +201,5 @@ chroma_db/
 .vscode/
 index_metadata.json
 
+*.log
+
