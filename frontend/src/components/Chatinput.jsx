@@ -17,7 +17,7 @@ const SubmitButton = () => {
   );
 };
 
-const Chatinput = ({ messages, setMessages , addOptimisticMessage, }) => {
+const Chatinput = ({ messages, setMessages , addOptimisticMessage, sessionId }) => {
 
   const formRef = useRef(null);
 
@@ -48,7 +48,7 @@ const Chatinput = ({ messages, setMessages , addOptimisticMessage, }) => {
 
       // api cal
       try {
-        const response = await sendMessage(question);
+        const response = await sendMessage(question, sessionId);
         setMessages((prevMessages) => [
           ...prevMessages,
           userMessage,
