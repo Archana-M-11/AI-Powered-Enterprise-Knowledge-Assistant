@@ -113,23 +113,75 @@
 
 #--------- test final flow --------
 
-from app.graph.flow import graph
+# from app.graph.flow import graph
 
-questions = [
-    "Hi",
-    "Thanks",
-    "What is the leave policy?",
-    "What is the weather today?",
-]
+# questions = [
+#     "Hi",
+#     "Thanks",
+#     "What is the leave policy?",
+#     "What is the weather today?",
+# ]
 
-for question in questions:
+# for question in questions:
 
-    print("\n" + "=" * 50)
-    print("QUESTION:", question)
+#     print("\n" + "=" * 50)
+#     print("QUESTION:", question)
 
-    result = graph.invoke({
-        "user_query": question
-    })
+#     result = graph.invoke({
+#         "user_query": question
+#     })
 
-    print("ANSWER:", result["answer"])
-    print("SOURCE:", result.get("source", []))
+#     print("ANSWER:", result["answer"])
+#     print("SOURCE:", result.get("source", []))
+
+#-----------db connection -------
+# import asyncio
+# from sqlalchemy import text
+# from app.db.database import engine
+
+
+# async def test_connection():
+#     async with engine.connect() as connection:
+#         result = await connection.execute(text("SELECT 1"))
+#         print(result.scalar())
+
+
+# asyncio.run(test_connection())
+
+
+#----------test db session ------------
+
+# import asyncio
+
+# from app.db.database import AsyncSessionLocal
+# from app.db.models import Session, Message
+
+
+# async def test_create_message():
+#     async with AsyncSessionLocal() as db:
+
+#         # Create a chat session
+#         chat_session = Session()
+#         db.add(chat_session)
+
+#         await db.flush()
+
+#         # Create a message belonging to that session
+#         message = Message(
+#             session_id=chat_session.id,
+#             role="user",
+#             content="Hello, this is a test message.",
+#         )
+
+#         db.add(message)
+
+#         await db.commit()
+
+#         print("Session:", chat_session.id)
+#         print("Message:", message.id)
+
+
+# asyncio.run(test_create_message())
+
+# ---------------------------------
+

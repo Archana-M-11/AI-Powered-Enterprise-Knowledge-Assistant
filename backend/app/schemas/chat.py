@@ -1,8 +1,10 @@
 from pydantic import BaseModel
 from pydantic import BaseModel, Field
+from uuid import UUID
 
 class ChatRequest(BaseModel):
     question:str
+    session_id: UUID
 
 class AnswerResponse(BaseModel):
     answer: str = Field( description="A clear, concise answer to the user's question.")

@@ -14,6 +14,12 @@ class Settings(BaseSettings):
     langsmith_tracing: bool = False
     langchain_project: str | None = None
 
+    database_user: str
+    database_password: str
+    database_host: str 
+    database_port: int 
+    database_name: str
+
     model_config = SettingsConfigDict(
         env_file=".env"
     )
