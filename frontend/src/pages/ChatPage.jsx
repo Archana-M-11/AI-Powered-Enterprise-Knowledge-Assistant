@@ -5,9 +5,23 @@ import Chatinput from "../components/Chatinput";
 import { createSession, getMessages } from "../services/api";
 
 const ChatPage = () => {
+
+  const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState([]);
 
   const [sessionId, setSessionId] = useState(null);
+  const [welcomeState, setWelcomeState] = useState("waiting");
+  const WELCOME_MESSAGE=
+  `Hello! 👋 I'm your Enterprise Knowledge Assistant.
+
+        I can help you with:
+        • Leave & attendance policies
+        • Employee benefits
+        • Reimbursement policies
+        • Remote work policies
+        • Employee handbook & company policies
+
+        You can ask me a question about any of these topics.`
 
   // Create or load session
   useEffect(() => {
@@ -27,13 +41,17 @@ const ChatPage = () => {
 
         // Load previous messages
         const response = await getMessages(storedSessionId);
-        setMessages(response.data.messages);
 
         if (response.data.messages.length > 0) {
           setMessages(response.data.messages);
+            setWelcomeState("done");
         } else {
-          // First time chat
-          setMessages([]);
+          setWelcomeState("waiting");
+
+          setTimeout(() => {
+            setWelcomeState("shown");
+          }, 5000);
+          
         }
       } catch (error) {
         console.error("Failed to initialize chat:", error);
@@ -57,13 +75,18 @@ const ChatPage = () => {
       <Navbar />
 
       <main>
-        <Chatwindow messages={optimisticMessages} />
+        <Chatwindow messages={optimisticMessages} 
+        isLoading={isLoading} 
+        welcomeState={welcomeState}
+         welcomeMessage={WELCOME_MESSAGE}
+         />
 
         <Chatinput
           messages={messages}
           setMessages={setMessages}
           addOptimisticMessage={addOptimisticMessage}
           sessionId={sessionId}
+          onPendingChange={setIsLoading}
         />
       </main>
     </>

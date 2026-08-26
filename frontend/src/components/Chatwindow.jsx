@@ -1,16 +1,34 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
 
-const Chatwindow = ({ messages }) => {
+const Chatwindow = ({ messages ,isLoading,welcomeState,welcomeMessage }) => {
   return (
     <section className="thread">
-      {messages.map((message, index) => (
+      {welcomeState === "waiting" && (
+  <div className="msg assistant">
+    <div className="answer typing-indicator">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+)}
+
+{/* First opening: welcome message */}
+{welcomeState === "shown" && (
+  <div className="msg assistant">
+    <div className="answer">
+      <ReactMarkdown>{welcomeMessage}</ReactMarkdown>
+    </div>
+  </div>
+)}
+      {messages.map((message) => (
         message.role === 'user' ? (
-          <div key={index} className="msg user">
+          <div key={message.id} className="msg user">
             <div className="bubble">{message.content}</div>
           </div>
         ) : (
-          <div key={index} className="msg assistant">
+          <div key={message.id} className="msg assistant">
             <div className="answer">
             <ReactMarkdown>{message.content}</ReactMarkdown>
                {message.source?.length > 0 && (
@@ -23,6 +41,16 @@ const Chatwindow = ({ messages }) => {
           </div>
         )
       ))}
+     
+      {isLoading && (
+      <div className="msg assistant">
+        <div className="typing-indicator">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    )}
     </section>
   );  
 };

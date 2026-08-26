@@ -9,31 +9,11 @@ from app.repositories.session_repository import (create_session,save_message,get
 
 router = APIRouter()
 
-
-WELCOME_MESSAGE = """Hello! 👋 I'm your Enterprise Knowledge Assistant.
-
-I can help you with:
-• Leave & attendance policies
-• Employee benefits
-• Reimbursement policies
-• Remote work policies
-• Employee handbook & company policies
-
-You can ask me a question about any of these topics."""
-
-
 @router.post("/sessions")
 async def create_chat_session(
     db: AsyncSession = Depends(get_db),
 ):
     session = await create_session(db)
-    await save_message(
-        db,
-        session.id,
-        "assistant",
-        WELCOME_MESSAGE,
-    )
-
     return {
         "session_id": session.id
     }
