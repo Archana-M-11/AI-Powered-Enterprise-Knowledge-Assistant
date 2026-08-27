@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from app.core.config import settings
 from app.schemas.chat import ChatRequest
 from app.graph.flow import graph
 from app.db.database import get_db
@@ -8,6 +8,9 @@ from uuid import UUID
 from app.repositories.session_repository import (create_session,save_message,get_messages)
 
 router = APIRouter()
+import os
+
+
 
 @router.post("/sessions")
 async def create_chat_session(
@@ -87,3 +90,7 @@ async def get_chat_messages(
             for message in messages
         ],
     }
+
+# print("TRACING:", settings.langsmith_tracing)
+# print("PROJECT:", settings.langsmith_project)
+# print("API KEY EXISTS:", bool(settings.langsmith_api_key))

@@ -183,5 +183,18 @@
 
 # asyncio.run(test_create_message())
 
-# ---------------------------------
+# ---------------langsmith------------------
+# import os
+# os.environ["LANGSMITH_TRACING"] = "true"
+# os.environ["LANGSMITH_API_KEY"] = ""
+# os.environ["LANGSMITH_PROJECT"] = "test"
 
+# from langsmith import traceable
+
+# @traceable(name="test_trace")
+# def test():
+#     return "hello"
+
+# test()
+
+# ---------------------------------

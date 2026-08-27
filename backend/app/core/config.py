@@ -12,7 +12,7 @@ class Settings(BaseSettings):
 
     langsmith_api_key: str | None = None
     langsmith_tracing: bool = False
-    langchain_project: str | None = None
+    langsmith_project: str | None = None
 
     database_user: str
     database_password: str

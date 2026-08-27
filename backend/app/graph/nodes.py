@@ -4,7 +4,15 @@ from app.services.retriever import retrieve_documents
 from langchain_google_genai import ChatGoogleGenerativeAI
 from app.core.config import settings
 from app.schemas.chat import AnswerResponse
+from langsmith import traceable
+import os
+from app.core.config import settings
 
+os.environ["LANGSMITH_TRACING"] = str(settings.langsmith_tracing).lower()
+if settings.langsmith_api_key:
+    os.environ["LANGSMITH_API_KEY"] = settings.langsmith_api_key
+if settings.langsmith_project:
+    os.environ["LANGSMITH_PROJECT"] = settings.langsmith_project
 
 llm= ChatGoogleGenerativeAI(
     model=settings.llm_model,
@@ -13,6 +21,7 @@ llm= ChatGoogleGenerativeAI(
 
 structured_llm = llm.with_structured_output(AnswerResponse)
 
+@traceable(name="Classify Query")
 def classify_querry(state:GraphState):
     user_query=state['user_query']
     prompt= f"""
@@ -147,6 +156,7 @@ def fallback_response(state:GraphState):
         )
     }
 
+@traceable(name="Generate Response")
 def generate_response(state:GraphState):
     documents=state["retrieved_documents"]
     question=state["user_query"]
