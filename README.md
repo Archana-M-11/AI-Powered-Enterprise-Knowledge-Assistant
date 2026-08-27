@@ -29,6 +29,9 @@ LangGraph used to orchestrate the query-processing workflow.
 - Source citation from document metadata
 - Fallback response for irrelevant queries
 - Out-of-scope query handling
+- PostgreSQL database integration
+- Persistent chat sessions and message history
+- Session-based conversation history
 
 ## Frontend
 
@@ -41,6 +44,7 @@ frontend/
     ├── components/    # Chatinput, Chatwindow, Navbar
     ├── pages/         # ChatPage
     └── services/      # api.js — centralized Axios instance
+   
 ```
 
 - All API calls go through `services/api.js` rather than being called
@@ -51,23 +55,22 @@ frontend/
   component files.
 ## Backend
 
-FastAPI service exposing the `/chat` endpoint that the frontend calls.
+FastAPI service exposing chat and session APIs that the frontend calls.
 Owns document ingestion, chunking, embedding, vector storage, retrieval,
 and LangGraph-orchestrated answer generation.
 
 ```text
 backend/
 └── app/
-    ├── core/          # config, settings, shared utilities
+    ├── core/           # config, settings, shared utilities
     ├── graph/          # LangGraph workflow definition
     ├── loaders/        # document loading  
     ├── services/       # chunking, retrieval, and application logic
     └── vectorstore/    # embedding + vector DB integration
-
+    ├── db/             # SQLAlchemy database, models, and repository functions
 ```
 
-The backend currently provides a working `/chat` endpoint with CORS enabled for 
-the frontend. The RAG pipeline and LangGraph workflow are integrated into the backend
+The backend provides chat and session APIs with CORS enabled for the frontend. The RAG pipeline, LangGraph workflow, and PostgreSQL-based chat persistence are integrated into the backend.
 
 ### RAG Core Pipeline
 
@@ -142,11 +145,13 @@ LANGCHAIN_PROJECT=your_project_name
 
 ### `POST /chat`
 
-Accepts a user question and returns a generated answer.
+Accepts a user question and session ID, processes the question through the RAG/LangGraph pipeline, stores the user and assistant messages, and returns the generated answer and sources.
 
 **Request**
 ```json
-{ "question": "What is the reimbursement policy for conference travel?" }
+{ "question": "What is the reimbursement policy for conference travel?",
+  "session_id": "your-session-id"
+ }
 ```
 
 **Response**
@@ -158,6 +163,13 @@ Accepts a user question and returns a generated answer.
   ]
 }
 ```
+### `POST /sessions`
+
+Creates a new chat session and returns a session ID.
+
+### `GET /sessions/{session_id}/messages`
+
+Retrieves the message history for a specific chat session.
 
 
 
