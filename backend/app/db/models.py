@@ -14,6 +14,11 @@ class Session(Base):
         primary_key=True,
         default=uuid.uuid4,
     )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id"),
+        nullable=False,
+        )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
@@ -23,6 +28,9 @@ class Session(Base):
     messages: Mapped[list["Message"]] = relationship(
         back_populates="session",
         cascade="all, delete-orphan",
+    )
+    user: Mapped["User"] = relationship(
+    back_populates="sessions"
     )
 
 
@@ -52,3 +60,33 @@ class Message(Base):
     session: Mapped["Session"] = relationship(
         back_populates="messages"
     )
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        )
+
+    email: Mapped[str] = mapped_column(
+            Text,
+            unique=True,
+            nullable=False,
+        )
+
+    password_hash: Mapped[str] = mapped_column(
+            Text,
+            nullable=False,
+        )
+
+    created_at: Mapped[datetime] = mapped_column(
+            DateTime,
+            default=datetime.utcnow,
+        )
+
+    sessions: Mapped[list["Session"]] = relationship(
+            back_populates="user",
+            cascade="all, delete-orphan",
+        )
