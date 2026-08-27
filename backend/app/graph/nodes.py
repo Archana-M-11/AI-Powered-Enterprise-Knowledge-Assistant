@@ -103,9 +103,20 @@ def generate_query_embedding(state: GraphState):
     }
 
 def retrieve_docs(state: GraphState):
-    documents=retrieve_documents(state['user_query'])
-    return{
-        'retrieved_documents':documents
+    history = state["history"]
+    question = state["user_query"]
+
+    history_text = "\n".join(
+        f"{message['role'].capitalize()}: {message['content']}"
+        for message in history
+    )
+
+    retrieval_query = f"""Previous conversation:{history_text}
+    Current question:{question}"""
+    documents = retrieve_documents(retrieval_query)
+
+    return {
+        "retrieved_documents": documents
     }
 
 def check_relevance(state: GraphState):
@@ -139,15 +150,26 @@ def fallback_response(state:GraphState):
 def generate_response(state:GraphState):
     documents=state["retrieved_documents"]
     question=state["user_query"]
+    history=state['history']
+    history=history[-settings.MAX_HISTORY_MESSAGES:]
+   
 
     context='\n\n'.join(
         document.page_content
         for document in documents
     )
+
+    # format history 
+    history_text = "\n".join(
+    f"{message['role'].capitalize()}: {message['content']}"
+    for message in history
+    )
+
     prompt = f"""
 You are an enterprise knowledge assistant.
 
-Answer the user's question using ONLY the provided context.
+Answer the user's question using ONLY the provided context
+and previous conversations when needed to undersatand.
 
 Format the answer clearly using Markdown:
 - Use short paragraphs.
@@ -156,6 +178,9 @@ Format the answer clearly using Markdown:
 - Use headings for major sections.
 - Keep related information grouped together.
 - Do not return everything as one long paragraph.
+
+Previous conversation:
+{history_text}
 
 Context:
 {context}
@@ -169,7 +194,7 @@ Question:
     document.metadata.get("source", "Unknown").split("\\")[-1]
     for document in documents
     })
-
+  
     return{
         "answer":response.answer,
         "source":sources

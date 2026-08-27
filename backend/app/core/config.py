@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     database_port: int 
     database_name: str
 
+    MAX_HISTORY_MESSAGES: int = 5
+
     model_config = SettingsConfigDict(
         env_file=".env"
     )

@@ -24,6 +24,19 @@ async def chat(
     request: ChatRequest,
     db: AsyncSession = Depends(get_db),
 ):
+
+# get previous chat 
+    previous_msg =await get_messages(
+        db,
+        request.session_id
+    )
+    history=[
+        {
+            "role":message.role,
+            "content":message.content
+        }
+        for message in previous_msg
+    ]
     # Save user's message
     await save_message(
         db,
@@ -34,7 +47,8 @@ async def chat(
 
     # LangGraph logic
     result = graph.invoke({
-        "user_query": request.question
+        "user_query": request.question,
+        "history":history
     })
 
     answer = result["answer"]
