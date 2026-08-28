@@ -17,10 +17,12 @@ async def get_user_by_email(
 
 async def create_user(
     db: AsyncSession,
+    name:str,
     email: str,
-    password_hash: str,
+    password_hash: str
 ):
     user = User(
+        name=name,
         email=email,
         password_hash=password_hash,
     )

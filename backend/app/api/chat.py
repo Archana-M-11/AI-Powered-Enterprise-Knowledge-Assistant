@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
-from app.schemas.chat import ChatRequest
+from app.schemas.chat import ChatRequest,ChatResponse,SessionResponse,MessageHistoryResponse,MessageResponse
 from app.graph.flow import graph
 from app.db.database import get_db
 from uuid import UUID
@@ -12,17 +12,16 @@ import os
 
 
 
-@router.post("/sessions")
+@router.post("/sessions",response_model=SessionResponse)
 async def create_chat_session(
-    db: AsyncSession = Depends(get_db),
-):
+    db: AsyncSession = Depends(get_db)):
     session = await create_session(db)
     return {
         "session_id": session.id
     }
 
 
-@router.post("/chat")
+@router.post("/chat",response_model=ChatResponse)
 async def chat(
     request: ChatRequest,
     db: AsyncSession = Depends(get_db),
@@ -71,7 +70,7 @@ async def chat(
         "session_id": request.session_id,
     }
 
-@router.get("/sessions/{session_id}/messages")
+@router.get("/sessions/{session_id}/messages",response_model=MessageHistoryResponse)
 async def get_chat_messages(
     session_id: UUID,
     db: AsyncSession = Depends(get_db),

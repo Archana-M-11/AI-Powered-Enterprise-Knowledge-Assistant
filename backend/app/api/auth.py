@@ -22,8 +22,9 @@ async def register(request: RegisterRequest,db:AsyncSession=Depends(get_db)):
 
     user = await create_user(
         db,
+        request.name,
         request.email,
-        password_hash,
+        password_hash
     )
     #http response for the /register
     return {

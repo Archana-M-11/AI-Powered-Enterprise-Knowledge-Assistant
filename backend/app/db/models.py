@@ -70,6 +70,12 @@ class User(Base):
         default=uuid.uuid4,
         )
 
+    name: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
+
+
     email: Mapped[str] = mapped_column(
             Text,
             unique=True,
