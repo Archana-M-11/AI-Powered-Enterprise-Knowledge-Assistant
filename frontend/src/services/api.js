@@ -4,6 +4,15 @@ const api=axios.create({
      baseURL: "http://127.0.0.1:8000",
 })
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("access_token");
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
 
 export const createSession = () => {
   return api.post("/sessions");
@@ -22,5 +31,11 @@ export const getMessages = (sessionId) => {
 
 export const userRegister=async (userData)=>{
   const response=await api.post("/register",userData)
+  return response.data
+}
+
+
+export const userLogin=async (userData)=>{
+  const response=await api.post("/login",userData)
   return response.data
 }

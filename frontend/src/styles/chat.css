@@ -238,3 +238,33 @@ main {
     transform: translateY(-4px);
   }
 }
+
+/*  */
+
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.user-name {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.logout-btn {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 7px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+/*  */
