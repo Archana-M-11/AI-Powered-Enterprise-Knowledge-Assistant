@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import React, { useEffect, useState, useOptimistic } from "react";
 import Chatinput from "../components/Chatinput";
 import { createSession, getMessages } from "../services/api";
+import "../styles/chat.css";
 
 const ChatPage = () => {
 

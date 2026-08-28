@@ -19,3 +19,8 @@ export const sendMessage = (question, sessionId) => {
 export const getMessages = (sessionId) => {
   return api.get(`/sessions/${sessionId}/messages`);
 };
+
+export const userRegister=async (userData)=>{
+  const response=await api.post("/register",userData)
+  return response.data
+}

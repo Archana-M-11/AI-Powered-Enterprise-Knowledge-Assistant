@@ -1,13 +1,20 @@
 import ChatPage from "./pages/ChatPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import {BrowserRouter,Routes,Route} from "react-router-dom"
 
 function App() {
   
 
   return (
     <>
-    <div className="app">
-      <ChatPage />
-    </div>
+     <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/chat" element={<ChatPage />} />
+      </Routes>
+    </BrowserRouter>
     </>
   )
 }
