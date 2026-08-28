@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends,HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.schemas.chat import ChatRequest,ChatResponse,SessionResponse,MessageHistoryResponse,MessageResponse
 from app.graph.flow import graph
 from app.db.database import get_db
 from uuid import UUID
-from app.repositories.session_repository import (create_session,save_message,get_messages)
+from app.repositories.session_repository import (create_session,save_message,get_messages,get_session_by_user)
+from app.core.auth import get_current_user
 
 router = APIRouter()
 import os
@@ -13,9 +14,11 @@ import os
 
 
 @router.post("/sessions",response_model=SessionResponse)
-async def create_chat_session(
-    db: AsyncSession = Depends(get_db)):
-    session = await create_session(db)
+async def create_chat_session(db: AsyncSession = Depends(get_db),current_user:UUID=Depends(get_current_user)):
+    session = await create_session(
+        db,
+        current_user
+        )
     return {
         "session_id": session.id
     }
@@ -25,7 +28,18 @@ async def create_chat_session(
 async def chat(
     request: ChatRequest,
     db: AsyncSession = Depends(get_db),
-):
+    current_user:UUID=Depends(get_current_user)) :
+
+    session=await get_session_by_user(
+        db,
+        request.session_id,
+        current_user
+    )
+    if not session:
+        raise HTTPException(
+            status_code=403,
+            detail="Not authorized to access this session",
+        )
 
 # get previous chat 
     previous_msg =await get_messages(
@@ -45,7 +59,7 @@ async def chat(
         request.session_id,
         "user",
         request.question,
-    )
+    )   
 
     # LangGraph logic
     result = graph.invoke({
@@ -74,7 +88,21 @@ async def chat(
 async def get_chat_messages(
     session_id: UUID,
     db: AsyncSession = Depends(get_db),
+    current_user:UUID=Depends(get_current_user)
 ):
+
+    session=await get_session_by_user(
+        db,
+        session_id,
+        current_user
+    )
+
+    if not session :
+        raise HTTPException(
+           status_code=403,
+           detail="Not authorized to access this session" 
+        )
+    
     messages = await get_messages(db, session_id)
 
     return {

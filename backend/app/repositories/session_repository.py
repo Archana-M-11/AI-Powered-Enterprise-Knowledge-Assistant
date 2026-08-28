@@ -1,10 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select,UUID
 from app.db.models import Session,Message
 
 
-async def create_session(db: AsyncSession) -> Session:
-    new_session = Session()
+async def create_session(db: AsyncSession,user_id:UUID) -> Session:
+    new_session = Session(
+        user_id=user_id
+    )
 
     db.add(new_session)
     await db.commit()
@@ -42,3 +44,12 @@ async def get_messages(
     )
 
     return list(result.scalars().all())
+
+async def get_session_by_user(db:AsyncSession,session_id:UUID,user_id:UUID):
+    result=await db.execute(
+        select(Session).where(
+            Session.id==session_id,
+            Session.user_id==user_id
+        )
+    )
+    return result.scalar_one_or_none

@@ -22,6 +22,10 @@ class Settings(BaseSettings):
 
     MAX_HISTORY_MESSAGES: int = 5
 
+    jwt_secret_key: str
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
+
     model_config = SettingsConfigDict(
         env_file=".env"
     )
