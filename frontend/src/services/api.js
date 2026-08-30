@@ -39,3 +39,7 @@ export const userLogin=async (userData)=>{
   const response=await api.post("/login",userData)
   return response.data
 }
+
+export const getSessions=()=>{
+  return api.get('/sessions')
+}

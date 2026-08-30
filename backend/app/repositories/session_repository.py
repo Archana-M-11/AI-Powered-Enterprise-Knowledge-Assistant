@@ -53,3 +53,9 @@ async def get_session_by_user(db:AsyncSession,session_id:UUID,user_id:UUID):
         )
     )
     return result.scalar_one_or_none
+
+async def get_user_sessions(db:AsyncSession,user_id:UUID):
+    result=await db.execute(
+        select(Session).where(Session.user_id==user_id).order_by(Session.created_at.desc())
+    )
+    return result.scalars().all()

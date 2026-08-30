@@ -1,14 +1,29 @@
-import React from 'react'
+import {useState,useEffect} from 'react'
 import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const navigate = useNavigate();
-
+ const [darktheme, setDarkmode] = useState(() => {
+  const savedTheme = localStorage.getItem("theme");
+  return savedTheme !== "light";
+});
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     navigate("/login");
-  };
+  }
+  useEffect(() => {
+  document.body.classList.toggle("light-theme", !darktheme);
+
+  localStorage.setItem(
+    "theme",
+    darktheme ? "dark" : "light"
+  );
+}, [darktheme]);
+
+  const toggleTheme = () => {
+   setDarkmode((prev)=>!prev)
+  }
 
   return (
     
@@ -20,8 +35,13 @@ const Navbar = () => {
                 Enterprise Knowledge Assistant
                 </span>
             </div>
-
+    
       <div className="user-section">
+
+          <button className="theme-toggle" onClick={toggleTheme}>
+            {darktheme? "☀️" : "🌙" }
+          </button>
+
       <span className='user-name'>Archana</span>
 
     <button className='logout-btn'
@@ -30,7 +50,6 @@ const Navbar = () => {
     </button>
   </div>
     </nav>
- 
   )
 }
 

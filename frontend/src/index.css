@@ -31,3 +31,14 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
+
+body.light-theme {
+  --bg: #F3EEE3;
+  --surface: #FCFAF4;
+  --surface-2: #F0EBDD;
+  --border: #DED4C0;
+  --border-strong: #C9BFA9;
+  --text: #262220;
+  --text-secondary: #6E6559;
+  --text-muted: #8B8173;
+}

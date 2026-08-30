@@ -4,6 +4,7 @@ import React, { useEffect, useState, useOptimistic } from "react";
 import Chatinput from "../components/Chatinput";
 import { createSession, getMessages } from "../services/api";
 import "../styles/chat.css";
+import Sidebar from "../components/Sidebar";
 
 const ChatPage = () => {
 
@@ -23,6 +24,8 @@ const ChatPage = () => {
         • Employee handbook & company policies
 
         You can ask me a question about any of these topics.`
+
+    const [sidebaropen, setSidebar] = useState(true);
 
   // Create or load session
   useEffect(() => {
@@ -73,6 +76,13 @@ const ChatPage = () => {
 
   return (
     <>
+    <div className={`chat-layout ${sidebaropen ? "sidebar-open" : "sidebar-closed"}`}>
+      <Sidebar 
+       sidebaropen={sidebaropen}
+        setSidebar={setSidebar}
+      />
+
+      <div className="chat-main">
       <Navbar />
 
       <main>
@@ -89,7 +99,11 @@ const ChatPage = () => {
           sessionId={sessionId}
           onPendingChange={setIsLoading}
         />
+     
+
       </main>
+         </div>
+        </div>
     </>
   );
 };

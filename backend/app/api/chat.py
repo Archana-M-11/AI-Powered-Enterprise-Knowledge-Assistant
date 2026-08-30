@@ -5,12 +5,12 @@ from app.schemas.chat import ChatRequest,ChatResponse,SessionResponse,MessageHis
 from app.graph.flow import graph
 from app.db.database import get_db
 from uuid import UUID
-from app.repositories.session_repository import (create_session,save_message,get_messages,get_session_by_user)
+from app.repositories.session_repository import (create_session,save_message,get_messages,get_session_by_user,
+                                                 get_user_sessions)
 from app.core.auth import get_current_user
 
 router = APIRouter()
 import os
-
 
 
 @router.post("/sessions",response_model=SessionResponse)
@@ -117,6 +117,20 @@ async def get_chat_messages(
             for message in messages
         ],
     }
+
+@router.get('/sessions',response_model=list[SessionResponse])
+async def get_sessions(db:AsyncSession=Depends(get_db),current_user:UUID=Depends(get_current_user)):
+    sessions=await get_user_sessions(
+        db,
+        current_user
+    )
+    return[
+        {
+            "session_id":session.id
+        }
+        for session in sessions
+    ]
+
 
 # print("TRACING:", settings.langsmith_tracing)
 # print("PROJECT:", settings.langsmith_project)
