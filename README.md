@@ -32,6 +32,13 @@ LangGraph used to orchestrate the query-processing workflow.
 - PostgreSQL database integration
 - Persistent chat sessions and message history
 - Session-based conversation history
+- User registration and login
+- JWT-based authentication
+- Protected session and chat APIs
+- Password hashing using Argon2id
+- User-specific chat sessions
+- Persistent user authentication
+- Access and refresh token handling
 
 ## Frontend
 
@@ -41,11 +48,14 @@ and renders the returned answer, sources, or a "not found" fallback.
 ```text
 frontend/
 └── src/
-    ├── components/    # Chatinput, Chatwindow, Navbar
+    ├── components/    # Chatinput, Chatwindow, Navbar , Sidebar
     ├── pages/         # ChatPage
     └── services/      # api.js — centralized Axios instance
    
 ```
+- Axios interceptors handle authentication tokens and token refresh.
+- The Navbar displays the authenticated user's name.
+- Chat sessions are loaded for the authenticated user.
 
 - All API calls go through `services/api.js` rather than being called
   directly from components, so the backend base URL and endpoint paths
@@ -60,14 +70,18 @@ Owns document ingestion, chunking, embedding, vector storage, retrieval,
 and LangGraph-orchestrated answer generation.
 
 ```text
+
 backend/
 └── app/
-    ├── core/           # config, settings, shared utilities
-    ├── graph/          # LangGraph workflow definition
-    ├── loaders/        # document loading  
-    ├── services/       # chunking, retrieval, and application logic
-    └── vectorstore/    # embedding + vector DB integration
-    ├── db/             # SQLAlchemy database, models, and repository functions
+    ├── api/            # authentication, chat, and session endpoints
+    ├── core/           # config, authentication, shared utilities
+    ├── graph/          # LangGraph workflow
+    ├── loaders/        # document loading
+    ├── services/       # application logic
+    ├── vectorstore/    # embeddings + vector DB
+    ├── db/             # database, models, repositories
+    └── schemas/        # Pydantic request/response schemas
+
 ```
 
 The backend provides chat and session APIs with CORS enabled for the frontend. The RAG pipeline, LangGraph workflow, and PostgreSQL-based chat persistence are integrated into the backend.
@@ -104,6 +118,23 @@ Conditional Routing
             END
 
 ```
+### Authentication Flow
+
+Register
+   ↓
+Password hashed with Argon2id
+   ↓
+User stored in PostgreSQL
+   ↓
+Login
+   ↓
+JWT access + refresh tokens
+   ↓
+Protected API requests
+   ↓
+Backend identifies authenticated user
+   ↓
+User-specific sessions and chat history
 
 ## Installation
 
@@ -133,6 +164,10 @@ npm run dev
 Create a `.env` file inside the `backend/` directory:
 
 ```env
+
+DATABASE_URL=your_database_url
+JWT_SECRET_KEY=your_secret_key
+JWT_ALGORITHM=HS256
 GEMINI_API_KEY=your_gemini_api_key
 HF_TOKEN=your_huggingface_token
 LANGSMITH_API_KEY=your_langsmith_api_key
@@ -160,16 +195,94 @@ Accepts a user question and session ID, processes the question through the RAG/L
   "answer": "The reimbursement policy ...",
   "source": [
     "reimbursement_policy_detailed.pdf"
-  ]
+  ],
+  "session_id": "your-session-id"
 }
 ```
 ### `POST /sessions`
 
-Creates a new chat session and returns a session ID.
+Creates a new chat session for the authenticated user and returns a session ID.
 
 ### `GET /sessions/{session_id}/messages`
+Retrieves the message history for a specific chat session belonging to the authenticated user.
 
-Retrieves the message history for a specific chat session.
+**Response**
+```json
+{
+  "session_id": "your-session-id",
+  "messages": [
+    {
+      "id": "message-id",
+      "role": "user",
+      "content": "What is the reimbursement policy?",
+      "created_at": "..."
+    },
+    {
+      "id": "message-id",
+      "role": "assistant",
+      "content": "The reimbursement policy ...",
+      "created_at": "..."
+    }
+  ]
+}
+```
+
+### `POST /register`
+
+Registers a new user.
+
+**Request**
+
+```json
+{
+  "name": "Archana",
+  "email": "user@example.com",
+  "password": "password"
+}
+```
+
+**Response**
+```json
+{
+  "id": "user-id",
+  "email": "user@example.com"
+}
+```
+
+### `POST /login`
+
+Authenticates an existing user using their email and password and returns access and refresh tokens.
+
+**Request**
+```json
+{
+  "email": "user@example.com",
+  "password": "password"
+}
+```
+**Response**
+
+```json
+{
+  "access_token": "your-access-token",
+  "refresh_token": "your-refresh-token",
+  "token_type": "bearer"
+}
+```
+### `GET /sessions`
+Retrieves the chat sessions belonging to the authenticated user.
+
+```json
+[
+  {
+    "session_id": "session-id-1"
+  },
+  {
+    "session_id": "session-id-2"
+  }
+]
+```
+
 
 
 
