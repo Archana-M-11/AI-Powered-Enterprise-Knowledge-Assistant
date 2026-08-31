@@ -102,4 +102,34 @@
   font-size: 14px;
 }
 
-/*  */
+/* register page */
+.password-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 14px;
+  font-size: 12px;
+}
+
+.password-checklist li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.password-checklist li.valid {
+  color: #4ade80;
+}
+
+.password-checklist li.invalid {
+  color: var(--text-secondary);
+}
+
+.checklist-icon {
+  display: inline-block;
+  width: 14px;
+  text-align: center;
+  font-weight: 600;
+}
