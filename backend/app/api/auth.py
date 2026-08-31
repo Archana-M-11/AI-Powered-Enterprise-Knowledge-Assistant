@@ -2,10 +2,13 @@ from fastapi import APIRouter,Depends,HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.schemas.auth import RegisterRequest, RegisterResponse,LoginRequest,LoginResponse
-from app.repositories.user_repository import (get_user_by_email,create_user)
-from app.core.auth import hash_password,verify_password,create_access_token,create_refresh_token, decode_refresh_token
+from app.repositories.user_repository import (get_user_by_email,create_user,get_user_by_id)
+from app.core.auth import ( hash_password,verify_password,create_access_token,create_refresh_token,
+                           decode_refresh_token,get_current_user)
+from uuid import UUID
 
 router=APIRouter()
+
 
 @router.post("/register", response_model=RegisterResponse)
 async def register(request: RegisterRequest,db:AsyncSession=Depends(get_db)):
@@ -76,7 +79,16 @@ async def refresh_token(refresh_token: str):
         "token_type": "bearer"
     }
 
+@router.get("/me")
+async def get_me(
+    db: AsyncSession = Depends(get_db),
+    current_user: UUID = Depends(get_current_user),
+):
+    user = await get_user_by_id(db, current_user)
 
-
-
+    return {
+        "id": str(user.id),
+        "name": user.name,
+        "email": user.email,
+    }
 

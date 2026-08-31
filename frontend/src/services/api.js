@@ -88,3 +88,7 @@ export const userLogin=async (userData)=>{
 export const getSessions=()=>{
   return api.get('/sessions')
 }
+
+export const getCurrentUser = () => {
+  return api.get("/me");
+}

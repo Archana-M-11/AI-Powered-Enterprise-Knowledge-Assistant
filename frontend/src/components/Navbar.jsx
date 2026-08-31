@@ -1,17 +1,24 @@
 import {useState,useEffect} from 'react'
 import { useNavigate } from 'react-router-dom';
+import {getCurrentUser} from '../services/api'
 
 const Navbar = () => {
   const navigate = useNavigate();
- const [darktheme, setDarkmode] = useState(() => {
+  const [user, setUser] = useState(null);
+  const [darktheme, setDarkmode] = useState(() => {
   const savedTheme = localStorage.getItem("theme");
   return savedTheme !== "light";
 });
 
   const handleLogout = () => {
+  const confirmed = window.confirm("Are you sure you want to logout?");
+  if (confirmed) {
     localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     navigate("/login");
-  }
+    }
+  };
+
   useEffect(() => {
   document.body.classList.toggle("light-theme", !darktheme);
 
@@ -24,6 +31,19 @@ const Navbar = () => {
   const toggleTheme = () => {
    setDarkmode((prev)=>!prev)
   }
+
+  useEffect(() => {
+  const loadUser = async () => {
+    try {
+      const response = await getCurrentUser();
+      setUser(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  loadUser();
+}, []);
 
   return (
     
@@ -42,7 +62,11 @@ const Navbar = () => {
             {darktheme? "☀️" : "🌙" }
           </button>
 
-      <span className='user-name'>Archana</span>
+      <div className="user-avatar">
+        {user?.name?.charAt(0).toUpperCase()}
+      </div>
+      <span className="user-name">{user?.name}</span>
+   
 
     <button className='logout-btn'
     onClick={handleLogout}>
