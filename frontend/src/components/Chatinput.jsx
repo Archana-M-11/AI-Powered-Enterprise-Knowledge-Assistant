@@ -11,7 +11,7 @@ const SubmitButton = () => {
   );
 };
 
-const Chatinput = ({ messages, setMessages, addOptimisticMessage, sessionId, onPendingChange }) => {
+const Chatinput = ({ messages, setMessages, addOptimisticMessage, sessionId, onPendingChange, onSessionUpdated }) => {
   const formRef = useRef(null);
   
 
@@ -41,6 +41,7 @@ const Chatinput = ({ messages, setMessages, addOptimisticMessage, sessionId, onP
             source: response.data.source,
           },
         ]);
+        onSessionUpdated();
         return { error: null };
       } catch (error) {
         return { error: "Something went wrong. Please try again." };

@@ -312,6 +312,15 @@ main {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+
+  scrollbar-width: none; /* Firefox */
+}
+
+.chat-history::-webkit-scrollbar {
+  display: none; /* Chrome, Edge, Safari */
 }
 
 .chat-history-item {
@@ -358,6 +367,9 @@ main {
   background: var(--surface);
   border-right: 1px solid var(--border);
   transition: width 0.2s ease;
+
+  display: flex;
+  flex-direction: column;
 }
 .sidebar.closed {
   width: 55px;
@@ -365,12 +377,13 @@ main {
 
 .sidebar-toggle {
   position: absolute;
-  top: 15px;
-  right: 10px;
+  top: 40%;
+  right: -7px;
   border: none;
   background: transparent;
   color: var(--text-secondary);
-  font-size: 20px;
+  font-size: 35px;
+  z-index: 10;  
   cursor: pointer;
 }
 /*  */

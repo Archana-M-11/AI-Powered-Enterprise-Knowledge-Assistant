@@ -19,11 +19,16 @@ class Session(Base):
         ForeignKey("users.id"),
         nullable=False,
         )
+    title: Mapped[str] = mapped_column(
+    Text,
+    nullable=False,
+    default="New Chat",
+)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
-    )
+    )   
 
     messages: Mapped[list["Message"]] = relationship(
         back_populates="session",
@@ -51,7 +56,6 @@ class Message(Base):
 
     role: Mapped[str] = mapped_column(Text)
     content: Mapped[str] = mapped_column(Text)
-
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,

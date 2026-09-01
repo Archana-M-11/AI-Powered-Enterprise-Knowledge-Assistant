@@ -3,10 +3,10 @@ import { getSessions,createSession } from "../services/api";
 import { useNavigate } from "react-router-dom";
 
 
-function Sidebar({ sidebaropen, setSidebar }) {
+function Sidebar({ sidebaropen, setSidebar,refreshSessions }) {
   const [sessions, setSessions] = useState([]);
   const navigate = useNavigate();
-  const [refresh, setRefresh] = useState(0);
+
 
   useEffect(() => {
     const fetchSessions = async () => {
@@ -19,7 +19,7 @@ function Sidebar({ sidebaropen, setSidebar }) {
     };
 
     fetchSessions();
-  }, [refresh]);
+  }, [refreshSessions]);
 
   const toogleSidebar = () => {
     setSidebar((prev) => !prev);
@@ -32,8 +32,9 @@ function Sidebar({ sidebaropen, setSidebar }) {
     const newSessionId = response.data.session_id;
 
     setSessions((prev) => [
+      { session_id: newSessionId ,
+       title: "New Chat"},
       ...prev,
-      { session_id: newSessionId }
     ]);
 
     navigate(`/chat/${newSessionId}`);
@@ -50,7 +51,7 @@ function Sidebar({ sidebaropen, setSidebar }) {
       className="sidebar-toggle"
       onClick={toogleSidebar}
     >
-      ☰
+       {sidebaropen ? "«" : "»"}
     </button>
       <button className="new-chat-btn" onClick={handleNewChat} >
         + New Chat
@@ -61,9 +62,9 @@ function Sidebar({ sidebaropen, setSidebar }) {
           <div
             key={session.session_id}
             className="chat-history-item"
-            onClick={() => navigate(`/chat/${session.session_id}`)}
+            onClick={() => navigate(`/chat/${session.session_id }`)}
           >
-            {session.session_id}
+            {session.title}
           </div>
         ))}
       </div>

@@ -16,6 +16,7 @@ class ChatResponse(BaseModel):
 
 class SessionResponse(BaseModel):
     session_id: UUID
+    title:str
 
 
 class MessageResponse(BaseModel):

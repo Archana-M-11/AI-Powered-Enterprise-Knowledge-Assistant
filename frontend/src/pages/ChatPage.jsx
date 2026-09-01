@@ -15,6 +15,7 @@ const ChatPage = () => {
   const navigate=useNavigate()
   const [sessionId, setSessionId] = useState(null);
   const [welcomeState, setWelcomeState] = useState("waiting");
+  const [refreshSessions, setRefreshSessions] = useState(0);
   const WELCOME_MESSAGE=
   `Hello! 👋 I'm your Enterprise Knowledge Assistant.
 
@@ -39,6 +40,8 @@ const ChatPage = () => {
       if (!activeSessionId) {
         const response = await createSession();
         activeSessionId = response.data.session_id;
+
+        setRefreshSessions((prev) => prev + 1);
 
         navigate(`/chat/${activeSessionId}`, { replace: true });
         return;
@@ -79,15 +82,13 @@ const ChatPage = () => {
       ]
     );
 
-
-
   return (
     <>
     <div className={`chat-layout ${sidebaropen ? "sidebar-open" : "sidebar-closed"}`}>
       <Sidebar 
        sidebaropen={sidebaropen}
         setSidebar={setSidebar}
-       
+        refreshSessions={refreshSessions}
       />
 
       <div className="chat-main">
@@ -106,6 +107,7 @@ const ChatPage = () => {
           addOptimisticMessage={addOptimisticMessage}
           sessionId={sessionId}
           onPendingChange={setIsLoading}
+          onSessionUpdated={() => setRefreshSessions(prev => prev + 1)}
         />
      
 

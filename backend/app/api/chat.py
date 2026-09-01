@@ -20,7 +20,8 @@ async def create_chat_session(db: AsyncSession = Depends(get_db),current_user:UU
         current_user
         )
     return {
-        "session_id": session.id
+        "session_id": session.id,
+        "title": session.title
     }
 
 
@@ -126,7 +127,8 @@ async def get_sessions(db:AsyncSession=Depends(get_db),current_user:UUID=Depends
     )
     return[
         {
-            "session_id":session.id
+            "session_id":session.id,
+            "title":session.title
         }
         for session in sessions
     ]

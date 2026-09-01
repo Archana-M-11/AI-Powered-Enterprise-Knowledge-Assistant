@@ -14,12 +14,7 @@ async def create_session(db: AsyncSession,user_id:UUID) -> Session:
 
     return new_session
 
-async def save_message(
-    db: AsyncSession,
-    session_id,
-    role: str,
-    content: str,
-) -> Message:
+async def save_message(db: AsyncSession,session_id:UUID,role: str,content: str,) -> Message:
     message = Message(
         session_id=session_id,
         role=role,
@@ -27,6 +22,13 @@ async def save_message(
     )
 
     db.add(message)
+    if role == "user":
+        session = await db.get(Session, session_id)
+
+        if session and session.title == "New Chat":
+            session.title = content[:20] + (
+                "..." if len(content) > 20 else ""
+            )
     await db.commit()
     await db.refresh(message)
 
@@ -52,7 +54,7 @@ async def get_session_by_user(db:AsyncSession,session_id:UUID,user_id:UUID):
             Session.user_id==user_id
         )
     )
-    return result.scalar_one_or_none
+    return result.scalar_one_or_none()
 
 async def get_user_sessions(db:AsyncSession,user_id:UUID):
     result=await db.execute(
