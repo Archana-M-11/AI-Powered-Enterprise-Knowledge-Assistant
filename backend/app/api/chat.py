@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends,HTTPException
+from app.db.models import Document
+from fastapi import APIRouter, Depends,HTTPException,File,UploadFile
+from sqlalchemy import func,select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.schemas.chat import ChatRequest,ChatResponse,SessionResponse,MessageHistoryResponse,MessageResponse
@@ -8,10 +10,15 @@ from uuid import UUID
 from app.repositories.session_repository import (create_session,save_message,get_messages,get_session_by_user,
                                                  get_user_sessions)
 from app.core.auth import get_current_user
+from datetime import datetime, timedelta
+from app.repositories.document_repository import save_uploaded_file,create_document,extract_text
+from langchain_core.documents import Document as LCDocument
+from app.services.chunker import split_documents
+from app.vectorstore.upload_vector_store import create_upload_vector_store
+from app.vectorstore.embeddings import embeddings
+
 
 router = APIRouter()
-import os
-
 
 @router.post("/sessions",response_model=SessionResponse)
 async def create_chat_session(db: AsyncSession = Depends(get_db),current_user:UUID=Depends(get_current_user)):
@@ -134,6 +141,85 @@ async def get_sessions(db:AsyncSession=Depends(get_db),current_user:UUID=Depends
     ]
 
 
+@router.post('/sessions/{session_id}/upload')
+async def upload_document(
+    session_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: UUID = Depends(get_current_user),
+    file: UploadFile = File(...)
+):
+    session = await get_session_by_user(db, session_id, current_user)
+    if not session:
+        raise HTTPException(status_code=403, detail="Not authorized to access this session")
+
+    allowed_file_types = ["pdf", "txt"]
+    file_extension = file.filename.split(".")[-1].lower()
+    if file_extension not in allowed_file_types:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid file type. Only PDF and TXT files are allowed.",
+        )
+
+    # rolling 24h upload count check
+    since = datetime.utcnow() - timedelta(hours=24)
+    result = await db.execute(
+        select(func.count(Document.id))
+        .where(Document.user_id == current_user, Document.created_at >= since)
+    )
+    upload_count = result.scalar()
+
+    if upload_count >= settings.MAX_UPLOADS_24H:
+        raise HTTPException(
+            status_code=429,
+            detail="Daily upload limit reached. Try again later.",
+        )
+
+    # size check — read ONCE here
+    file_content = await file.read()
+    if len(file_content) > settings.MAX_FILE_SIZE:
+        raise HTTPException(status_code=400, detail="File size must be less than 1 MB")
+
+    await file.seek(0)  # reset pointer so save_uploaded_file can read it fresh
+
+    file_path = await save_uploaded_file(file)
+
+    document = await create_document(
+        db,
+        session_id=session_id,
+        user_id=current_user,
+        filename=file.filename,
+        file_type=file_extension,   
+        file_path=file_path,
+    )
+
+    text = await extract_text(file_path, file_extension)
+    # print("EXTRACTED TEXT:")
+    # print(text)
+    langchain_document = LCDocument(
+    page_content=text,
+    metadata={
+        "user_id": str(current_user),
+        "session_id": str(session_id),
+        "document_id": str(document.id),
+        }
+    )
+    chunks = split_documents([langchain_document])
+
+    # print("Number of chunks:", len(chunks))
+    # print("First chunk:", chunks[0].page_content)
+    # print("Metadata:", chunks[0].metadata)
+
+    vector_store = create_upload_vector_store(
+    chunks,
+    embeddings)
+
+    return {
+        "message": "Document uploaded successfully.",
+        "document_id": document.id,
+        "filename": document.filename,
+    }
+
+    
 # print("TRACING:", settings.langsmith_tracing)
 # print("PROJECT:", settings.langsmith_project)
 # print("API KEY EXISTS:", bool(settings.langsmith_api_key))

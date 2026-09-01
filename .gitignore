@@ -202,4 +202,6 @@ chroma_db/
 index_metadata.json
 
 *.log
+uploaded_chroma_db/
+uploads/
 

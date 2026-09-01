@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
 
+    MAX_FILE_SIZE: int = 1 * 1024 * 1024
+    MAX_UPLOADS_24H: int  = 20
+
     model_config = SettingsConfigDict(
         env_file=".env"
     )
