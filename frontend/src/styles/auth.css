@@ -126,7 +126,57 @@
 .password-checklist li.invalid {
   color: var(--text-secondary);
 }
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
 
+.password-wrapper input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 40px 12px 12px; /* right padding clears the icon */
+  background: #1e2128;
+  border: 1px solid #2f333d;
+  border-radius: 8px;
+  color: #e5e5e5;
+  font-size: 15px;
+}
+
+.password-wrapper input:focus {
+  outline: none;
+  border-color: #d4a72c;
+}
+
+.password-wrapper input::placeholder {
+  color: #6b7280;
+}
+
+.password-wrapper button {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.password-wrapper button:focus {
+  outline: none;
+}
+.match-success { color: #4ade80 !important; }
+.match-error { color: #d61e1e !important; }
+/*  */
 .checklist-icon {
   display: inline-block;
   width: 14px;

@@ -40,8 +40,8 @@ async def login(request:LoginRequest,db:AsyncSession=Depends(get_db)):
      user=await get_user_by_email(db,request.email)
      if not user:
            raise HTTPException(
-            status_code=401,
-            detail="Invalid email or password",
+            status_code=404,
+            detail="Email not registered",
         )
      if not verify_password(request.password,user.password_hash):
           

@@ -1,11 +1,12 @@
 import "../styles/auth.css";
 import { userLogin } from "../services/api";
-import { useActionState,useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useActionState,useEffect,useState } from "react";
+import { useNavigate,Link } from "react-router-dom";
 import { useFormStatus } from "react-dom";
 
 function LoginButton() {
   const { pending } = useFormStatus();
+
 
   return (
     <button type="submit" disabled={pending}>
@@ -16,9 +17,34 @@ function LoginButton() {
 
 function LoginPage() {
   const navigate = useNavigate();
+  const[showpassword,setShowPassword]=useState(false);
 
   
 async function loginAction(previousState, formData) {
+  
+  const email = formData.get("email")?.trim();
+  const password = formData.get("password");
+
+ 
+   const errors = {};
+
+  if (!email) {
+    errors.emailError = "Email is required";
+  }
+
+  if (!password) {
+    errors.passwordError = "Password is required";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return {
+      success: false,
+      emailError: errors.emailError || "",
+      passwordError: errors.passwordError || "",
+      message: "",
+    };
+  }
+ 
   try {
     const userData = {
       email: formData.get("email"),
@@ -34,6 +60,13 @@ async function loginAction(previousState, formData) {
       token: data.access_token,
     };
   } catch (error) {
+    if (error.response?.status==404){
+      return{
+        notRegistered:true,
+        success:false,
+        message:"Email is not registered, Redirecting to Register Page"
+      }
+    }
     return {
       success: false,
       message: "Invalid email or password",
@@ -41,10 +74,14 @@ async function loginAction(previousState, formData) {
   }
 }
 
+
 const [state, formAction] = useActionState(
   loginAction,
   {
     success: false,
+    notRegistered:false,
+    emailError: "",
+    passwordError: "",
     message: "",
   }
 );
@@ -53,11 +90,18 @@ useEffect(() => {
   if (state.success) {
     const timer = setTimeout(() => {
       navigate("/chat");
-    }, 5000);
+    }, 2000);
 
     return () => clearTimeout(timer);
   }
-}, [state.success, navigate]);
+  if(state.notRegistered){
+    const timer=setTimeout(()=>{
+      navigate("/register")
+  },2000);
+  return()=>clearTimeout(timer);
+  }
+}, [state.success,state.notRegistered, navigate]);
+
 
 
   return (
@@ -71,12 +115,31 @@ useEffect(() => {
             name="email"
             placeholder="Email"
           />
-
-          <input
-            type="password"
+          {
+            state.emailError &&
+            <div className="error-message">
+              {state.emailError}
+            </div>
+          }
+         <div className="password-wrapper">
+           <input
+            type={showpassword ? "text" : "password"}
             name="password"
             placeholder="Password"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showpassword)} 
+            >{showpassword ?  "👁️" : "👁️‍🗨️"}</button>       
+          </div>
+          {
+            state.passwordError &&
+            <div>
+              <div className="error-message">
+                {state.passwordError}
+              </div>
+            </div>
+          }
 
          <LoginButton/>
         </form>
@@ -89,7 +152,7 @@ useEffect(() => {
 
         <p>
           Don't have an account?
-          <a href="/register"> Register</a>
+          <Link to="/register"> Register</Link>
         </p>
       </div>
     </div>
