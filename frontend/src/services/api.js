@@ -92,3 +92,13 @@ export const getSessions=()=>{
 export const getCurrentUser = () => {
   return api.get("/me");
 }
+
+export const uploadDocument=(session_id,file)=>{
+  const formData=new FormData()
+  formData.append('file',file)
+  return api.post(`/sessions/${session_id}/upload`,formData,{
+    headers:{
+      'Content-Type':'multipart/form-data'
+    }
+  })
+}

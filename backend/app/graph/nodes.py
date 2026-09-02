@@ -1,6 +1,6 @@
 from app.graph.state import GraphState
 from app.vectorstore.embeddings import embeddings
-from app.services.retriever import retrieve_documents
+from app.services.retriever import retrieve_documents, retrieve_uploaded_documents
 from langchain_google_genai import ChatGoogleGenerativeAI
 from app.core.config import settings
 from app.schemas.chat import AnswerResponse
@@ -24,27 +24,29 @@ structured_llm = llm.with_structured_output(AnswerResponse)
 @traceable(name="Classify Query")
 def classify_querry(state:GraphState):
     user_query=state['user_query']
+
+    has_upload = state.get("has_uploaded_document", False)
+    upload_note = (
+        "\nNote: The user has uploaded a document to this conversation. "
+        "Questions asking to explain, summarize, validate, or ask about "
+        "'this file', 'the document', 'this offer letter', etc. should be "
+        "classified as knowledge."
+        if has_upload else "")
     prompt= f"""
      Classify the user's input into exactly one of these categories:
-
         greeting:
        Greeting should ONLY include simple greetings such as:
         "hi", "hello", "hey",
-
         thanks:
         Only expressions of gratitude such as "Thank you", "Thanks","Thanks a lot".
-
         knowledge:
         Questions related to the employee knowledge base,
         including benefits, leave, reimbursement, remote work,
-        employee policies, or the employee handbook.
-
+        employee policies, or the employee handbook. {upload_note}
         out_of_scope:
         Anything unrelated to the employee knowledge base.
-
         User input:
         {user_query}
-
         Return ONLY one word:
         greeting
         thanks
@@ -110,19 +112,23 @@ def generate_query_embedding(state: GraphState):
     return {
         "query_embedding": query_embedding
     }
-
 def retrieve_docs(state: GraphState):
-    history = state["history"]
+
     question = state["user_query"]
 
-    history_text = "\n".join(
-        f"{message['role'].capitalize()}: {message['content']}"
-        for message in history
+    company_documents = retrieve_documents(question)
+
+    uploaded_documents = retrieve_uploaded_documents(
+        question,
+        state["session_id"],
+        state["user_id"]
     )
 
-    retrieval_query = f"""Previous conversation:{history_text}
-    Current question:{question}"""
-    documents = retrieve_documents(retrieval_query)
+    documents = (
+        [(doc, score, "company") for doc, score in company_documents]
+        +
+        [(doc, score, "uploaded") for doc, score in uploaded_documents]
+    )
 
     return {
         "retrieved_documents": documents
@@ -130,16 +136,23 @@ def retrieve_docs(state: GraphState):
 
 def check_relevance(state: GraphState):
     documents = state["retrieved_documents"]
-    threshold = 1.0
-    relevant_documents = [
-        document
-        for document, score in documents
-        if score <= threshold
-    ]
+    threshold = 1.15
+
+    company_docs = [(doc, score) for doc, score, origin in documents if origin == "company"]
+    uploaded_docs = [(doc, score) for doc, score, origin in documents if origin == "uploaded"]
+
+    relevant_company = [doc for doc, score in company_docs if score <= threshold]
+
+    uploaded_included = [doc for doc, score in uploaded_docs]
+
+    combined = relevant_company + uploaded_included
+
+    if not combined:
+        return {"relevance_result": False, "retrieved_documents": []}
 
     return {
-        "relevance_result": bool(relevant_documents),
-        "retrieved_documents": relevant_documents
+        "relevance_result": True,
+        "retrieved_documents": combined
     }
 
 def route_relevance(state: GraphState):
@@ -176,28 +189,31 @@ def generate_response(state:GraphState):
     )
 
     prompt = f"""
-You are an enterprise knowledge assistant.
+        You are an enterprise knowledge assistant. 
+        If the provided context is unrelated to employee/company matters 
+        for example, if it is source code, unrelated personal content, or
+        anything not connected to company policy or employment — do NOT
+        explain, summarize, or engage with that content. Instead, respond
+        that you can only help with questions related to the employee
+        knowledge base and company policies.
 
-Answer the user's question using ONLY the provided context
-and previous conversations when needed to undersatand.
+        Format the answer clearly using Markdown:
+        - Use short paragraphs.
+        - Use numbered lists when explaining multiple points.
+        - Use bullet points when appropriate.
+        - Use headings for major sections.
+        - Keep related information grouped together.
+        - Do not return everything as one long paragraph.
 
-Format the answer clearly using Markdown:
-- Use short paragraphs.
-- Use numbered lists when explaining multiple points.
-- Use bullet points when appropriate.
-- Use headings for major sections.
-- Keep related information grouped together.
-- Do not return everything as one long paragraph.
+        Previous conversation:
+        {history_text}
 
-Previous conversation:
-{history_text}
+        Context:
+        {context}
 
-Context:
-{context}
-
-Question:
-{question}
-"""
+        Question:
+        {question}
+        """
     response = structured_llm.invoke(prompt)
 
     sources = list({

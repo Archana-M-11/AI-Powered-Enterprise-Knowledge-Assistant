@@ -69,10 +69,19 @@ async def chat(
         request.question,
     )   
 
+
+    result = await db.execute(
+    select(func.count(Document.id)).where(Document.session_id == request.session_id)
+)
+    has_upload = result.scalar() > 0
+
     # LangGraph logic
     result = graph.invoke({
         "user_query": request.question,
-        "history":history
+        "history":history,
+        "session_id": str(request.session_id),
+        "user_id": str(current_user),
+        "has_uploaded_document": has_upload,
     })
 
     answer = result["answer"]
@@ -201,6 +210,7 @@ async def upload_document(
         "user_id": str(current_user),
         "session_id": str(session_id),
         "document_id": str(document.id),
+         "source": file.filename,
         }
     )
     chunks = split_documents([langchain_document])

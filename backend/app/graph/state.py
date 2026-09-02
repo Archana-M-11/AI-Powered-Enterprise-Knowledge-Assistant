@@ -9,3 +9,6 @@ class GraphState(TypedDict):
     relevance_result:bool
     answer:str
     source:list
+    session_id: str
+    user_id: str
+    has_uploaded_document: bool

@@ -22,12 +22,22 @@ const Chatwindow = ({ messages ,isLoading,welcomeState,welcomeMessage }) => {
     </div>
   </div>
 )}
-      {messages.map((message) => (
+      {
+      messages.map((message) => (
         message.role === 'user' ? (
+           message.type === "file" ? (
+              <div key={message.id} className="msg user">
+            <div className="file-message">
+              📎 {message.filename}
+            </div>
+            </div>
+          ):(
           <div key={message.id} className="msg user">
             <div className="bubble">{message.content}</div>
           </div>
-        ) : (
+        )
+      ) : (
+          
           <div key={message.id} className="msg assistant">
             <div className="answer">
             <ReactMarkdown>{message.content}</ReactMarkdown>
