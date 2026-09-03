@@ -100,8 +100,9 @@ The backend provides chat and session APIs with CORS enabled for the frontend. T
 
 Company knowledge → chroma_db/
 Employee uploads → uploaded_chroma_db/
-
 ### Document Flow
+
+```text
 Upload
   ↓
 Local file + PostgreSQL metadata + Chroma chunks
@@ -114,6 +115,7 @@ Cleanup
   ├── Delete Chroma chunks
   ├── Delete physical file
   └── Delete PostgreSQL metadata
+```
 
 ### LangGraph Workflow
 
