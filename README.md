@@ -57,7 +57,7 @@ and renders the returned answer, sources, or a "not found" fallback.
 frontend/
 └── src/
     ├── components/    # Chatinput, Chatwindow, Navbar , Sidebar
-    ├── pages/         # ChatPage
+    ├── pages/         # ChatPage , Regiter , Login
     └── services/      # api.js — centralized Axios instance
    
 ```
