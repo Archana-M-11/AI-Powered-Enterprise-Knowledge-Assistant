@@ -10,7 +10,6 @@ grounded answers using an LLM.
 The application consists of a FastAPI backend and React frontend, with
 LangGraph used to orchestrate the query-processing workflow.
 
-![Architecture Diagram](docs/architecture.png)
 
 ## Key Features
 
@@ -39,6 +38,15 @@ LangGraph used to orchestrate the query-processing workflow.
 - User-specific chat sessions
 - Persistent user authentication
 - Access and refresh token handling
+- Employee document upload (PDF/TXT)
+- Separate vector store for uploaded documents
+- User- and session-isolated document retrieval
+- Temporary uploaded-document storage
+- 24-hour upload limit
+- Automatic expired-document cleanup
+- File size validation
+- File type validation
+- Optimistic file-message rendering in the chat UI
 
 ## Frontend
 
@@ -74,11 +82,11 @@ and LangGraph-orchestrated answer generation.
 backend/
 └── app/
     ├── api/            # authentication, chat, and session endpoints
-    ├── core/           # config, authentication, shared utilities
+    ├── core/           # config, authentication, shared utilities , Expired-document cleanup
     ├── graph/          # LangGraph workflow
     ├── loaders/        # document loading
     ├── services/       # application logic
-    ├── vectorstore/    # embeddings + vector DB
+    ├── vectorstore/    # embeddings + vector DB(Company and uploaded-document vector stores)
     ├── db/             # database, models, repositories
     └── schemas/        # Pydantic request/response schemas
 
@@ -89,6 +97,23 @@ The backend provides chat and session APIs with CORS enabled for the frontend. T
 ### RAG Core Pipeline
 
 📄 **Document Loading** → 🧩 **Chunking** → 🔢 **Embedding** → 🗄️ **Vector Store** → 🔍 **Similarity Search** → 🧠 **LLM Generation (LangGraph)** → 💬 **Answer + Sources**
+
+Company knowledge → chroma_db/
+Employee uploads → uploaded_chroma_db/
+
+### Document Flow
+Upload
+  ↓
+Local file + PostgreSQL metadata + Chroma chunks
+  ↓
+Available for retrieval
+  ↓
+Retention period expires
+  ↓
+Cleanup
+  ├── Delete Chroma chunks
+  ├── Delete physical file
+  └── Delete PostgreSQL metadata
 
 ### LangGraph Workflow
 
@@ -282,6 +307,12 @@ Retrieves the chat sessions belonging to the authenticated user.
   }
 ]
 ```
+### POST /sessions/{session_id}/upload
+
+Uploads a PDF/TXT document for the authenticated user's chat session.
+
+The document is validated, temporarily stored, processed into chunks,
+embedded, and stored in the uploaded-document Chroma vector store.
 
 
 

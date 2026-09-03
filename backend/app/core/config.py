@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30
 
     MAX_FILE_SIZE: int = 1 * 1024 * 1024
-    MAX_UPLOADS_24H: int  = 40
+    MAX_UPLOADS_24H: int  = 3
 
     model_config = SettingsConfigDict(
         env_file=".env"
