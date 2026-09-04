@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
-import { getSessions,createSession } from "../services/api";
+import { getSessions, createSession } from "../services/api";
 import { useNavigate } from "react-router-dom";
 
-
-function Sidebar({ sidebaropen, setSidebar,refreshSessions }) {
+function Sidebar({ sidebaropen, setSidebar, refreshSessions }) {
   const [sessions, setSessions] = useState([]);
   const navigate = useNavigate();
-
-
+  
   useEffect(() => {
     const fetchSessions = async () => {
       try {
@@ -23,52 +21,68 @@ function Sidebar({ sidebaropen, setSidebar,refreshSessions }) {
 
   const toogleSidebar = () => {
     setSidebar((prev) => !prev);
-  }
+  };
 
   const handleNewChat = async () => {
-  try {
-    const response = await createSession();
+    try {
+      const response = await createSession();
+      const newSessionId = response.data.session_id;
 
-    const newSessionId = response.data.session_id;
+      setSessions((prev) => [
+        { session_id: newSessionId, title: "New Chat" },
+        ...prev,
+      ]);
 
-    setSessions((prev) => [
-      { session_id: newSessionId ,
-       title: "New Chat"},
-      ...prev,
-    ]);
+      navigate(`/chat/${newSessionId}`);
+    } catch (error) {
+      console.error("Failed to create new chat:", error);
+    }
+  };
+ const handleDelete = async (e, deletedId) => {
+    e.stopPropagation();
+    try {
+      await deleteSession(deletedId);
+      setSessions((prev) => prev.filter((s) => s.session_id !== deletedId));
+      toast.success("Chat deleted");
+      if (sessionId === deletedId) {
+        navigate("/chat");
+      }
+    } catch (error) {
+      toast.error("Failed to delete chat");
+    }
+  };
 
-    navigate(`/chat/${newSessionId}`);
-  } catch (error) {
-    console.error("Failed to create new chat:", error);
-  }
-};
-
-  
-  
   return (
-    <aside className={`sidebar ${sidebaropen ? "open" : "closed"}`}>
-    <button
-      className="sidebar-toggle"
-      onClick={toogleSidebar}
-    >
-       {sidebaropen ? "«" : "»"}
-    </button>
-      <button className="new-chat-btn" onClick={handleNewChat} >
-        + New Chat
-      </button>
+    <>
+      <aside className={`sidebar ${sidebaropen ? "open" : "closed"}`}>
+        <button className="sidebar-toggle" onClick={toogleSidebar}>
+          {sidebaropen ? "«" : "»"}
+        </button>
 
-       <div className="chat-history">
-        {sessions.map((session) => (
-          <div
-            key={session.session_id}
-            className="chat-history-item"
-            onClick={() => navigate(`/chat/${session.session_id }`)}
-          >
-            {session.title}
-          </div>
-        ))}
-      </div>
-    </aside>
+        <button className="new-chat-btn" onClick={handleNewChat}>
+          + New Chat
+        </button>
+
+        <div className="chat-history">
+          {sessions.map((session) => (
+            <div
+              key={session.session_id}
+              className="chat-history-item"
+              onClick={() => navigate(`/chat/${session.session_id}`)}
+            >
+              {session.title}
+            </div>
+          ))}
+        </div>
+      </aside>
+
+      <button
+        className={`mobile-sidebar-toggle ${sidebaropen ? "sidebar-is-open" : ""}`}
+        onClick={toogleSidebar}
+      >
+        {sidebaropen ? "«" : "»"}
+      </button>
+    </>
   );
 }
 

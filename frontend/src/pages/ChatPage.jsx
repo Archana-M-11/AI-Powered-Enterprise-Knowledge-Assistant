@@ -17,18 +17,9 @@ const ChatPage = () => {
   const [welcomeState, setWelcomeState] = useState("waiting");
   const [refreshSessions, setRefreshSessions] = useState(0);
   const WELCOME_MESSAGE=
-  `Hello! 👋 I'm your Enterprise Knowledge Assistant.
-
-        I can help you with:
-        • Leave & attendance policies
-        • Employee benefits
-        • Reimbursement policies
-        • Remote work policies
-        • Employee handbook & company policies
-
-        You can ask me a question about any of these topics.`
-
-    const [sidebaropen, setSidebar] = useState(true);
+ `Hello! I'm your Enterprise Knowledge Assistant.
+ Ask about company policies, benefits, or workplace guidelines.`
+    const [sidebaropen, setSidebaropen] = useState(true);
 
   // Create or load session
   useEffect(() => {
@@ -87,7 +78,7 @@ const ChatPage = () => {
     <div className={`chat-layout ${sidebaropen ? "sidebar-open" : "sidebar-closed"}`}>
       <Sidebar 
        sidebaropen={sidebaropen}
-        setSidebar={setSidebar}
+        setSidebar={setSidebaropen}
         refreshSessions={refreshSessions}
       />
 

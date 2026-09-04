@@ -7,17 +7,20 @@ const PASSWORD_RULES = [
 ];
 
 function PasswordChecklist({ password }) {
+  if (!password) return null;
+
+  const failedRules = PASSWORD_RULES.filter((rule) => !rule.test(password));
+
+  if (failedRules.length === 0) return null;
+
   return (
     <ul className="password-checklist">
-      {PASSWORD_RULES.map((rule) => {
-        const passed = rule.test(password);
-        return (
-          <li key={rule.label} className={passed ? "valid" : "invalid"}>
-            <span className="checklist-icon">{passed ? "✓" : "✗"}</span>
-            {rule.label}
-          </li>
-        );
-      })}
+      {failedRules.map((rule) => (
+        <li key={rule.label} className="invalid">
+          <span className="checklist-icon">✕</span>
+          {rule.label}
+        </li>
+      ))}
     </ul>
   );
 }

@@ -6,7 +6,7 @@ const SubmitButton = () => {
   const { pending } = useFormStatus();
   return (
     <button className="send-btn" type="submit" disabled={pending}>
-      Ask
+        ↑
     </button>
   );
 };

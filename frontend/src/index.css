@@ -1,25 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
-:root {
-  --bg: #14171C;
-  --surface: #1C2027;
-  --surface-2: #22262E;
-  --border: #2B303A;
-  --border-strong: #3A4049;
-  --text: #ECEAE3;
-  --text-secondary: #9CA1AC;
-  --text-muted: #6B7280;
-  --accent: #C9A227;
-  --accent-text: #E4C158;
-  --link: #7B9AE8;
-  --link-tint: #1D2436;
-  --not-found: #E3B49B;
-  --not-found-bg: #2E2019;
-  --not-found-border: #4A3527;
-  --radius: 10px;
-  --font-display: 'Fraunces', serif;
-  --font-sans: 'Inter', sans-serif;
-  --font-mono: 'IBM Plex Mono', monospace;
+:root { 
+  --bg: #14171C; 
+  --surface: #1C2027; 
+  --surface-2: #22262E; 
+  --border: #2B303A; 
+  --border-strong: #3A4049; 
+  --text: #ECEAE3; 
+  --text-secondary: #9CA1AC; 
+  --text-muted: #6B7280; 
+  --accent: #6366F1; 
+  --accent-text: #A5A8FF;   
+  --link: #9598FF; 
+  --link-tint: #24244A; 
+  --not-found: #E3B49B; 
+  --not-found-bg: #2E2019; 
+  --not-found-border: #4A3527; 
+  --radius: 10px; 
+  --font-display: 'Fraunces', serif; 
+  --font-sans: 'Inter', sans-serif; 
+  --font-mono: 'IBM Plex Mono', monospace; 
 }
 
 * { box-sizing: border-box; }
@@ -33,12 +33,21 @@ body {
 }
 
 body.light-theme {
-  --bg: #F3EEE3;
-  --surface: #FCFAF4;
-  --surface-2: #F0EBDD;
-  --border: #DED4C0;
-  --border-strong: #C9BFA9;
-  --text: #262220;
-  --text-secondary: #6E6559;
-  --text-muted: #8B8173;
+  --bg: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-2: #F5F6F8;
+  --border: #E2E4E9;
+  --border-strong: #CBCED6;
+  --text: #1A1D23;
+  --text-secondary: #5B616E;
+  --text-muted: #8B909C;
+
+  --accent: #6366F1;
+  --accent-text: #4F52D6;
+  --link: #5457E5;
+  --link-tint: #ECEDFF;
+
+  --not-found: #C25B3A;
+  --not-found-bg: #FDF1EC;
+  --not-found-border: #F0D3C4;
 }

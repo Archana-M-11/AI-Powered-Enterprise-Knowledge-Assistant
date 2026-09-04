@@ -3,13 +3,14 @@ import { userLogin } from "../services/api";
 import { useActionState,useEffect,useState } from "react";
 import { useNavigate,Link } from "react-router-dom";
 import { useFormStatus } from "react-dom";
+import toast from "react-hot-toast";
 
 function LoginButton() {
   const { pending } = useFormStatus();
 
 
   return (
-    <button type="submit" disabled={pending}>
+    <button  type="submit" disabled={pending}>
       {pending ? "Loging..." : "Login"}
     </button>
   );
@@ -73,8 +74,6 @@ async function loginAction(previousState, formData) {
     };
   }
 }
-
-
 const [state, formAction] = useActionState(
   loginAction,
   {
@@ -88,6 +87,7 @@ const [state, formAction] = useActionState(
 
 useEffect(() => {
   if (state.success) {
+    toast.success(state.message || "Login successful! Redirecting...");
     const timer = setTimeout(() => {
       navigate("/chat");
     }, 2000);
@@ -95,6 +95,7 @@ useEffect(() => {
     return () => clearTimeout(timer);
   }
   if(state.notRegistered){
+    toast.error(state.message || "Email is not registered, redirecting...");
     const timer=setTimeout(()=>{
       navigate("/register")
   },2000);
@@ -140,15 +141,12 @@ useEffect(() => {
               </div>
             </div>
           }
+          {!state.success && !state.passwordError && state.message && (
+            <div className="error-message">{state.message}</div>
+          )}
 
          <LoginButton/>
         </form>
-
-        {state.message && (
-          <div className={state.success ? "success-message" : "error-message"}>
-            {state.message}
-          </div>
-        )}
 
         <p>
           Don't have an account?
