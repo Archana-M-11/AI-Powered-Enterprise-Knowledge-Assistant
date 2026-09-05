@@ -29,8 +29,12 @@ function RegisterPage() {
     const confirmPw = formData.get("confirmPassword");
 
     const errors = {};
-
-    if (!name) errors.nameError = "Name is required";
+    const nameRegex = /^[A-Za-z]+(?:\s[A-Za-z]+)*$/;
+    if (!name) {
+        errors.nameError = "Name is required";
+      } else if (!nameRegex.test(name)) {
+        errors.nameError = "Name should contain only letters";
+      }
     if (!email) errors.emailValidationError = "Email is required";
 
     if (!pw) {
@@ -92,6 +96,18 @@ function RegisterPage() {
 
   const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword;
   const showMatchStatus = confirmPassword.length > 0;
+  useEffect(() => {
+  if (!state.success && (
+    state.nameError ||
+    state.emailValidationError ||
+    state.passwordError ||
+    state.confirmPasswordError ||
+    state.message
+  )) {
+    setPassword("");
+    setConfirmPassword("");
+  }
+}, [state]);
 
   return (
     <div className="auth-container">

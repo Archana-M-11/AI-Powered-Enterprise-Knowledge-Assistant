@@ -12,3 +12,4 @@ class GraphState(TypedDict):
     session_id: str
     user_id: str
     has_uploaded_document: bool
+    references_upload: bool

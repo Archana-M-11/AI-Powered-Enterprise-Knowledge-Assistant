@@ -1,26 +1,41 @@
-import React, { useActionState, useEffect, useRef ,useState } from "react";
+import React, { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { sendMessage , uploadDocument} from "../services/api";
+import { sendMessage, uploadDocument } from "../services/api";
+import toast from "react-hot-toast";
 
 const SubmitButton = () => {
   const { pending } = useFormStatus();
   return (
     <button className="send-btn" type="submit" disabled={pending}>
-        ↑
+      ↑
     </button>
   );
 };
 
-const Chatinput = ({ messages, setMessages, addOptimisticMessage, sessionId, onPendingChange,
-                   onSessionUpdated }) => {
+const Chatinput = ({ messages, setMessages, addOptimisticMessage, sessionId, onPendingChange, onSessionUpdated }) => {
   const formRef = useRef(null);
   const fileInputRef = useRef(null);
   const [pendingFile, setPendingFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
-   const handleFileSelect = (e) => {
+  const handleFileSelect = async (e) => {
     const file = e.target.files?.[0];
-    if (file) setPendingFile(file);
     e.target.value = "";
+    if (!file) return;
+
+    setPendingFile(file);
+    setUploading(true);
+
+    try {
+      await uploadDocument(sessionId, file);
+      toast.success("File uploaded — will be deleted after 24 hours");
+    } catch (error) {
+      const message = error.response?.data?.detail || "File upload failed.";
+      toast.error(message);
+      setPendingFile(null);
+    } finally {
+      setUploading(false);
+    }
   };
 
   const removePendingFile = () => {
@@ -30,47 +45,39 @@ const Chatinput = ({ messages, setMessages, addOptimisticMessage, sessionId, onP
   const [state, formAction, isPending] = useActionState(
     async (previousState, formData) => {
       const question = formData.get("question")?.trim();
-       if (!question && !pendingFile) 
-        return { 
-      error: "Please enter a question."
-     };
-     let fileMessage=null;
-       if (pendingFile) {
-        const fileName = pendingFile?.name;
-        try {
-          await uploadDocument(sessionId, pendingFile);
-        } catch (error) {
-          return { error: error.response?.data?.detail || "File upload failed." };
-        }
-          fileMessage = {
+      if (!question && !pendingFile) return { error: "Please enter a question." };
+
+      let fileMessage = null;
+      if (pendingFile) {
+        fileMessage = {
           id: `file-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
           role: "user",
           type: "file",
-          filename: fileName,
+          filename: pendingFile.name,
         };
-        setPendingFile(null);
+      
       }
 
       if (!question) return { error: null };
 
       formRef.current?.reset();
 
-      const userMessage = { 
+      const userMessage = {
         id: `temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        role: "user", 
-        content: question
-       };
+        role: "user",
+        content: question,
+      };
 
-       if (fileMessage) {
+      if (fileMessage) 
         addOptimisticMessage(fileMessage);
-      }
-      addOptimisticMessage(userMessage);
+        setPendingFile(null);
+     addOptimisticMessage(userMessage);
 
       try {
         const response = await sendMessage(question, sessionId);
         setMessages((prev) => [
           ...prev,
-          ...(fileMessage ? [fileMessage] : []), 
+          ...(fileMessage ? [fileMessage] : []),
           userMessage,
           {
             id: response.data.message_id,
@@ -88,24 +95,25 @@ const Chatinput = ({ messages, setMessages, addOptimisticMessage, sessionId, onP
     { error: null }
   );
 
-  // report pending state up to ChatPage
   useEffect(() => {
-    onPendingChange(isPending);
-  }, [isPending, onPendingChange]);
+    onPendingChange(isPending || uploading);
+  }, [isPending, uploading, onPendingChange]);
 
   return (
-      <div className="ask-wrap">
-        <div className="ask-card">
-            {pendingFile && (
-            <div className="file-chip">
-              📎 {pendingFile.name}
-              <button type="button" onClick={removePendingFile}>
-                ✕
-              </button>
-            </div>
-          )}
-        <form ref={formRef} action={formAction}>
-
+    <div className="ask-wrap">
+      <div className="ask-card">
+        {pendingFile && (
+          <div className="file-chip">
+            📎 {pendingFile.name}
+            {uploading && <span className="uploading-dot"> uploading…</span>}
+            <button type="button" onClick={removePendingFile}>✕</button>
+          </div>
+        )}
+        <form ref={formRef} action={formAction}
+         onSubmit={() => {
+    if (pendingFile) setPendingFile(null);
+  }}
+  >
           <input
             type="file"
             ref={fileInputRef}
@@ -113,11 +121,7 @@ const Chatinput = ({ messages, setMessages, addOptimisticMessage, sessionId, onP
             style={{ display: "none" }}
             onChange={handleFileSelect}
           />
-          <button
-            type="button"
-            className="attach-btn"
-            onClick={() => fileInputRef.current?.click()}
-          >
+          <button type="button" className="attach-btn" onClick={() => fileInputRef.current?.click()}>
             +
           </button>
           <input

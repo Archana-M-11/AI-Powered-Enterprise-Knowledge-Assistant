@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 async def delete_expired_documents():
     while True:
         async with AsyncSessionLocal() as db:
-            cutoff = datetime.utcnow() - timedelta(hours=5)
+            cutoff = datetime.utcnow() - timedelta(minutes=1)
 
             result = await db.execute(
                 select(Document).where(Document.created_at < cutoff)
@@ -50,4 +50,4 @@ async def delete_expired_documents():
 
             await db.commit()
 
-        await asyncio.sleep(3600)
+        await asyncio.sleep(60)

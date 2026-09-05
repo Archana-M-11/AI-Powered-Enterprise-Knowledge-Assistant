@@ -592,3 +592,17 @@ body:not(.light-theme) .theme-toggle::before {
 html, body {
   overflow-x: hidden;
 }
+/*  */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--border, #1e2a45);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+}
